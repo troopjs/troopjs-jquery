@@ -1,0 +1,19 @@
+/*!
+ * TroopJS jQuery destroy plug-in
+ * @license TroopJS 0.0.1 Copyright 2012, Mikael Karon <mikael@karon.se>
+ * Released under the MIT license.
+ */
+define([ "jquery" ], function DestroyModule($) {
+	$.event.special["destroy"] = {
+		remove : function onDestroyRemove(handleObj) {
+			var self = this;
+
+			handleObj.handler.call(self, $.Event({
+				"type" : handleObj.type,
+				"data" : handleObj.data,
+				"namespace" : handleObj.namespace,
+				"target" : self
+			}));
+		}
+	};
+});
