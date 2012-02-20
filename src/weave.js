@@ -64,9 +64,6 @@ define([ "jquery" ], function WeaveModule($) {
 								widget.init(element, name);
 							}
 
-/*							// Set the displayName of the widget
-							widget.displayName = name;
-*/
 							$element
 								// Wire widget (widget)
 								.wire(widget)
