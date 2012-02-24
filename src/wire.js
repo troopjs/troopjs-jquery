@@ -3,7 +3,7 @@
  * @license TroopJS 0.0.1 Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-define([ "jquery", "pubsub/hub" ], function WireModule($, hub) {
+define([ "jquery", "troopjs/pubsub/hub" ], function WireModule($, hub) {
 	var UNSHIFT = Array.prototype.unshift;
 	var FUNCTION = Function;
 	var UNDEFINED = undefined;
