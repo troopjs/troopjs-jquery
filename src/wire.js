@@ -11,11 +11,10 @@ define([ "jquery", "troopjs/pubsub/hub" ], function WireModule($, hub) {
 	var FALSE = false;
 
 	var RE_WIRE = /^(app|dom)(?::(one))?\/(.+)/;
-	var APP = "app";
+	var HUB = "hub";
 	var DOM = "dom";
 	var ONE = "one";
 	var BIND = "bind";
-	var TOPIC = "$1/$3";
 	var WIRE = "wire";
 	var UNWIRE = "unwire";
 	var BEFORE_WIRE = "beforeWire";
@@ -69,11 +68,11 @@ define([ "jquery", "troopjs/pubsub/hub" ], function WireModule($, hub) {
 					matches = RE_WIRE.exec(key);
 
 					if (matches !== NULL) {
-						// Make topic (skip ':one' if present)
-						topic = key.replace(RE_WIRE, TOPIC);
+						// get topic
+						topic = matches[3];
 
 						switch (matches[1]) {
-						case APP:
+						case HUB:
 							// Subscribe to topic
 							hub.subscribe(topic, widget, value);
 							break;
@@ -124,8 +123,7 @@ define([ "jquery", "troopjs/pubsub/hub" ], function WireModule($, hub) {
 				matches = RE_WIRE.exec(key);
 
 				if (matches !== NULL) {
-					// Make topic (skip ':one' if present)
-					topic = key.replace(RE_WIRE, TOPIC);
+					topic = matches[3];
 
 					switch (matches[1]) {
 					case APP:
