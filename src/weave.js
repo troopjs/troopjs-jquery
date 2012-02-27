@@ -6,6 +6,7 @@
 define([ "jquery" ], function WeaveModule($) {
 	var UNDEFINED = undefined;
 	var NULL = null;
+	var EMPTY = "";
 	var FUNCTION = Function;
 	var ARRAY = Array;
 	var JOIN = ARRAY.prototype.join;
@@ -27,7 +28,7 @@ define([ "jquery" ], function WeaveModule($) {
 
 		$elements.each(function elementIterator(index, element) {
 			var $element = $(element);
-			var weave = $element.attr(DATA_WEAVE) || "";
+			var weave = $element.attr(DATA_WEAVE) || EMPTY;
 			var widgets = weave.split(RE_SEPARATOR);
 			var mark = i;
 			var j;
@@ -133,7 +134,7 @@ define([ "jquery" ], function WeaveModule($) {
 			})
 			// Copy data-woven attribute to data-weave
 			.attr(DATA_WEAVE, function attrIterator(index, attr) {
-				return $(this).attr(DATA_WOVEN).replace(RE_CLEAN, "");
+				return $(this).attr(DATA_WOVEN).replace(RE_CLEAN, EMPTY);
 			})
 			// Remove data-woven attribute
 			.removeAttr(DATA_WOVEN);
