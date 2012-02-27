@@ -13,9 +13,9 @@ define([ "jquery" ], function ActionModule($) {
 	var CLICK = "click." + ACTION;
 	var RE_ACTION = /^([\w\d\s_\-\/]+)(?:\((.*)\))?$/;
 	var RE_SEPARATOR = /[\s,]+/;
-	var RE_STRING = /^(["'])(.*)\1$/;
-	var RE_DIGIT = /^(\d+)$/;
-	var RE_BOOLEAN = /^(false|true)$/;
+	var RE_STRING = /^(["']).*\1$/;
+	var RE_DIGIT = /^\d+$/;
+	var RE_BOOLEAN = /^false|true$/;
 
 	/**
 	 * Internal click handler
@@ -58,11 +58,11 @@ define([ "jquery" ], function ActionModule($) {
 			if (key in $data) {
 				argv[i] = $data[key];
 			} else if (RE_STRING.test(key)) {
-				argv[i] = RE_STRING.exec(key)[2];
+				argv[i] = key.slice(1, -1);
 			} else if (RE_DIGIT.test(key)) {
-				argv[i] = RE_DIGIT.exec(key)[1];
+				argv[i] = Number(key);
 			} else if (RE_BOOLEAN.test(key)) {
-				argv[i] = RE_BOOLEAN.exec(key)[1] === TRUE;
+				argv[i] = key === TRUE;
 			}
 		});
 
