@@ -10,7 +10,7 @@ define([ "jquery", "troopjs/pubsub/hub" ], function WireModule($, hub) {
 	var NULL = null;
 	var FALSE = false;
 
-	var RE_WIRE = /^(app|dom)(?::(one))?\/(.+)/;
+	var RE_WIRE = /^(hub|dom)(?::(one))?\/(.+)/;
 	var HUB = "hub";
 	var DOM = "dom";
 	var ONE = "one";
