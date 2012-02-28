@@ -169,4 +169,11 @@ define([ "jquery" ], function ActionModule($) {
 			$(this).unbind(ACTION, onAction);
 		}
 	};
+
+	$.fn[ACTION] = function action(name) {
+		$(this).trigger({
+			type: ACTION + "!",
+			action: name
+		}, SLICE.call(arguments, 1));
+	};
 });
