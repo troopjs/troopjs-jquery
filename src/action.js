@@ -171,7 +171,7 @@ define([ "jquery" ], function ActionModule($) {
 	};
 
 	$.fn[ACTION] = function action(name) {
-		$(this).trigger({
+		return $(this).trigger({
 			type: ACTION + "!",
 			action: name
 		}, SLICE.call(arguments, 1));
