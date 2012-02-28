@@ -91,11 +91,6 @@ define([ "jquery" ], function ActionModule($) {
 			return;
 		}
 
-		// At this point we know we want to handle this event, so don't bubble
-		$event.stopPropagation();
-		// or execute default
-		$event.preventDefault();
-
 		// Extract action name
 		var name = matches[1];
 		// Extract action args
