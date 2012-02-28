@@ -10,7 +10,7 @@ define([ "jquery" ], function ActionModule($) {
 	var SLICE = Array.prototype.slice;
 	var ACTION = "action";
 	var TRUE = "true";
-	var CLICK = "click." + ACTION;
+	var ORIGINALEVENT = "originalEvent";
 	var RE_ACTION = /^([\w\d\s_\-\/]+)(?:\((.*)\))?$/;
 	var RE_SEPARATOR = /[\s,]+/;
 	var RE_STRING = /^(["']).*\1$/;
@@ -18,11 +18,61 @@ define([ "jquery" ], function ActionModule($) {
 	var RE_BOOLEAN = /^false|true$/;
 
 	/**
-	 * Internal click handler
+	 * Namespace iterator
+	 * @param namespace (string) namespace
+	 * @param index (number) index
+	 */
+	function namespaceIterator(namespace, index) {
+		return namespace ? namespace + "." + ACTION : NULL;
+	}
+
+	/**
+	 * Action handler
+	 * @param $event (jQuery.Event) event
+	 */
+	function onAction($event) {
+		// Set $target
+		var $target = $(this);
+		// Get argv
+		var argv = SLICE.call(arguments, 1);
+		// Extract type
+		var type = ORIGINALEVENT in $event
+			? $event[ORIGINALEVENT].type
+			: ACTION;
+		// Extract name
+		var name = $event[ACTION];
+
+		// Reset $event.type
+		$event.type = ACTION + "/" + name + "." + type;
+
+		// Trigger 'ACTION/{name}.{type}'
+		$target.trigger($event, argv);
+
+		// No handler, try without namespace, but exclusive
+		if ($event.result !== FALSE) {
+			// Reset $event.type
+			$event.type = ACTION + "/" + name + "!";
+
+			// Trigger 'ACTION/{name}'
+			$target.trigger($event, argv);
+
+			// Still no handler, try generic action with namespace
+			if ($event.result !== FALSE) {
+				// Reset $event.type
+				$event.type = ACTION + "." + type;
+
+				// Trigger 'ACTION.{type}'
+				$target.trigger($event, argv);
+			}
+		}
+	}
+
+	/**
+	 * Internal handler
 	 * 
 	 * @param $event jQuery event
 	 */
-	function clickHandler($event) {
+	function handler($event) {
 		// Get closest element that has an action defined
 		var $target = $($event.target).closest("[data-action]");
 
@@ -66,23 +116,11 @@ define([ "jquery" ], function ActionModule($) {
 			}
 		});
 
-		// Construct $Event
-		var $Event = $.Event($event, {
-			type : ACTION + "/" + name,
-			action : name
-		});
-
-		// Trigger 'ACTION/{name}'
-		$target.trigger($Event, argv);
-
-		// No handler, try generic action even
-		if ($Event.result !== FALSE) {
-			// Reset $Event.type
-			$Event.type = ACTION;
-
-			// Trigger 'ACTION'
-			$target.trigger($Event, argv);
-		}
+		// Trigger ACTION event
+		$target.trigger($.Event($event, {
+			type: ACTION + "!",
+			action: name
+		}), argv);
 	}
 
 	$.event.special[ACTION] = {
@@ -96,7 +134,31 @@ define([ "jquery" ], function ActionModule($) {
 		 *        beforeunload event, you’ll never use it).
 		 */
 		setup : function onActionSetup(data, namespaces, eventHandle) {
-			$(this).bind(CLICK, data, clickHandler);
+			$(this).bind(ACTION, data, onAction);
+		},
+
+		/**
+		 * Do something each time an event handler is bound to a particular element
+		 * @param handleObj (Object)
+		 */
+		add : function onActionAdd(handleObj) {
+			var events = $.map(handleObj.namespace.split("."), namespaceIterator);
+
+			if (events.length !== 0) {
+				$(this).bind(events.join(" "), handler);
+			}
+		},
+
+		/**
+		 * Do something each time an event handler is unbound from a particular element
+		 * @param handleObj (Object)
+		 */
+		remove : function onActionRemove(handleObj) {
+			var events = $.map(handleObj.namespace.split("."), namespaceIterator);
+
+			if (events.length !== 0) {
+				$(this).unbind(events.join(" "), handler);
+			}
 		},
 
 		/**
@@ -104,39 +166,7 @@ define([ "jquery" ], function ActionModule($) {
 		 *        binding the event.
 		 */
 		teardown : function onActionTeardown(namespaces) {
-			$(this).unbind(CLICK, clickHandler);
+			$(this).unbind(ACTION, onAction);
 		}
-	};
-
-	/**
-	 * Action shorthand
-	 * 
-	 * @parm name Action name to trigger
-	 */
-	$.fn[ACTION] = function Action(name) {
-		// Set target to ourselves
-		var $target = $(this);
-		// Get argv
-		var argv = SLICE.call(arguments, 1);
-
-		// Construct $Event
-		var $Event = $.Event({
-			type : ACTION + "/" + name,
-			action : name
-		});
-
-		// Trigger 'ACTION/{name}'
-		$target.trigger($Event, argv);
-
-		// No handler, try generic action even
-		if ($Event.result !== FALSE) {
-			// Reset $Event.type
-			$Event.type = ACTION;
-
-			// Trigger 'ACTION'
-			$target.trigger($Event, argv);
-		}
-
-		return $target;
 	};
 });
