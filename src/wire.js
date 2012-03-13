@@ -32,62 +32,61 @@ define([ "jquery", "troopjs/pubsub/hub" ], function WireModule($, hub) {
 	}
 
 	$.fn[WIRE] = function wire(widget) {
-		return $(this)
-			.each(function elementIterator(index, element) {
-				var key = UNDEFINED;
-				var value;
-				var matches;
-				var topic;
-				var proxies;
-				var beforeWire;
+		return $(this).each(function elementIterator(index, element) {
+			var key = UNDEFINED;
+			var value;
+			var matches;
+			var topic;
+			var proxies;
+			var beforeWire;
 
-				// Is there a before wire
-				if (BEFORE_WIRE in widget) {
-					// Get handle to beforeWire
-					beforeWire = widget[BEFORE_WIRE];
+			// Is there a before wire
+			if (BEFORE_WIRE in widget) {
+				// Get handle to beforeWire
+				beforeWire = widget[BEFORE_WIRE];
 
-					// Is beforeWire a function
-					if (beforeWire instanceof FUNCTION) {
-						// If beforeWire returns FALSE we should break
-						if (beforeWire.call(widget, element) === FALSE) {
-							return FALSE;
-						}
+				// Is beforeWire a function
+				if (beforeWire instanceof FUNCTION) {
+					// If beforeWire returns FALSE we should break
+					if (beforeWire.call(widget, element) === FALSE) {
+						return FALSE;
 					}
 				}
+			}
 
-				// Make sure we have proxies
-				proxies = widget[PROXIES] = PROXIES in widget
-					? widget[PROXIES]
-					: {};
+			// Make sure we have proxies
+			proxies = widget[PROXIES] = PROXIES in widget
+				? widget[PROXIES]
+				: {};
 
-				// Loop over each property in widget
-				for (key in widget) {
-					value = widget[key];
+			// Loop over each property in widget
+			for (key in widget) {
+				value = widget[key];
 
-					// Match wire signature in key
-					matches = RE_WIRE.exec(key);
+				// Match wire signature in key
+				matches = RE_WIRE.exec(key);
 
-					if (matches !== NULL) {
-						// get topic
-						topic = matches[3];
+				if (matches !== NULL) {
+					// get topic
+					topic = matches[3];
 
-						switch (matches[1]) {
-						case HUB:
-							// Subscribe to topic
-							hub.subscribe(topic, widget, value);
-							break;
+					switch (matches[1]) {
+					case HUB:
+						// Subscribe to topic
+						hub.subscribe(topic, widget, value);
+						break;
 
-						case DOM:
-							// Replace value with a scoped proxy and store in proxies
-							proxies[topic] = value = $EventProxy(topic, widget, value);
+					case DOM:
+						// Replace value with a scoped proxy and store in proxies
+						proxies[topic] = value = $EventProxy(topic, widget, value);
 
-							// Either ONE or BIND element
-							$(element)[matches[2] === ONE ? ONE : BIND](topic, widget, value);
-							break;
-						}
+						// Either ONE or BIND element
+						$(element)[matches[2] === ONE ? ONE : BIND](topic, widget, value);
+						break;
 					}
 				}
-			});
+			}
+		});
 	};
 
 	$.fn[UNWIRE] = function unwire(widget) {
