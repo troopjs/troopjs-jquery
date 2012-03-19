@@ -11,8 +11,9 @@ define([ "jquery" ], function ActionModule($) {
 	var ACTION = "action";
 	var TRUE = "true";
 	var ORIGINALEVENT = "originalEvent";
-	var RE_ACTION = /^([\w\d\s_\-\/]+)(?:\((.*)\))?$/;
+	var RE_ACTION = /^([\w\d\s_\-\/]+)(?:\.([\w\.]+))?(?:\((.*)\))?$/;
 	var RE_SEPARATOR = /[\s,]+/;
+	var RE_DOT = /\.+/;
 	var RE_STRING = /^(["']).*\1$/;
 	var RE_DIGIT = /^\d+$/;
 	var RE_BOOLEAN = /^false|true$/;
@@ -93,8 +94,16 @@ define([ "jquery" ], function ActionModule($) {
 
 		// Extract action name
 		var name = matches[1];
+		// Extract action namespaces
+		var namespaces = matches[2];
 		// Extract action args
-		var args = matches[2];
+		var args = matches[3];
+
+		// If there are action namespaces, make sure we're only triggering action on applicable types
+		if (namespaces !== UNDEFINED && !RegExp(namespaces.split(RE_DOT).join("|")).test($event.type)) {
+			return;
+		}
+
 		// Split args by separator (if there were args)
 		var argv = args !== UNDEFINED ? args.split(RE_SEPARATOR) : [];
 
@@ -111,7 +120,7 @@ define([ "jquery" ], function ActionModule($) {
 			}
 		});
 
-		// Trigger ACTION event
+		// Trigger exclusive ACTION event
 		$target.trigger($.Event($event, {
 			type: ACTION + "!",
 			action: name
@@ -137,7 +146,7 @@ define([ "jquery" ], function ActionModule($) {
 		 * @param handleObj (Object)
 		 */
 		add : function onActionAdd(handleObj) {
-			var events = $.map(handleObj.namespace.split("."), namespaceIterator);
+			var events = $.map(handleObj.namespace.split(RE_DOT), namespaceIterator);
 
 			if (events.length !== 0) {
 				$(this).bind(events.join(" "), handler);
@@ -149,7 +158,7 @@ define([ "jquery" ], function ActionModule($) {
 		 * @param handleObj (Object)
 		 */
 		remove : function onActionRemove(handleObj) {
-			var events = $.map(handleObj.namespace.split("."), namespaceIterator);
+			var events = $.map(handleObj.namespace.split(RE_DOT), namespaceIterator);
 
 			if (events.length !== 0) {
 				$(this).unbind(events.join(" "), handler);
