@@ -58,7 +58,7 @@ define([ "jquery" ], function WeaveModule($) {
 
 							// Instantiate widgets that support it
 							if (widget instanceof FUNCTION) {
-								widget = new widget(element, name);
+								widget = new widget($element, name);
 							}
 							// Otherwise, look for an init method
 							else if (widget.init instanceof FUNCTION) {
