@@ -75,7 +75,7 @@ define([ "jquery" ], function WeaveModule($) {
 							// Iterate argv to set typed values
 							for (k = 0, kMax = argv.length; k < kMax; k++) {
 								value = argv[k];
-	
+
 								if (value in $data) {
 									argv[k] = $data[value];
 								} else if (RE_STRING.test(value)) {
