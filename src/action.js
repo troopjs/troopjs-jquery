@@ -110,15 +110,17 @@ define([ "jquery" ], function ActionModule($) {
 			: [];
 
 		// Iterate argv to determine arg type
-		$.each(argv, function argsIterator(i, key) {
-			if (key in $data) {
-				argv[i] = $data[key];
-			} else if (RE_STRING.test(key)) {
-				argv[i] = key.slice(1, -1);
-			} else if (RE_DIGIT.test(key)) {
-				argv[i] = Number(key);
-			} else if (RE_BOOLEAN.test(key)) {
-				argv[i] = key === TRUE;
+		$.each(argv, function argsIterator(i, value) {
+			if (value in $data) {
+				argv[i] = $data[value];
+			} else if (RE_STRING.test(value)) {
+				argv[i] = value.slice(1, -1);
+			} else if (RE_DIGIT.test(value)) {
+				argv[i] = Number(value);
+			} else if (RE_BOOLEAN.test(value)) {
+				argv[i] = value === TRUE;
+			} else {
+				argv[i] = UNDEFINED;
 			}
 		});
 
