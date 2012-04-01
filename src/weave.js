@@ -68,7 +68,7 @@ define([ "jquery" ], function WeaveModule($) {
 							var value;
 
 							// Get widget arguments (if any)
-							var argv = args
+							var argv = args !== UNDEFINED
 								? args.split(RE_SEPARATOR)
 								: [];
 
