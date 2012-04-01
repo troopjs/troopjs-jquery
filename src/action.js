@@ -16,7 +16,7 @@ define([ "jquery" ], function ActionModule($) {
 	var RE_DOT = /\.+/;
 	var RE_STRING = /^(["']).*\1$/;
 	var RE_DIGIT = /^\d+$/;
-	var RE_BOOLEAN = /^false|true$/;
+	var RE_BOOLEAN = /^false|true$/i;
 
 	/**
 	 * Namespace iterator
