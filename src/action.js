@@ -105,7 +105,9 @@ define([ "jquery" ], function ActionModule($) {
 		}
 
 		// Split args by separator (if there were args)
-		var argv = args !== UNDEFINED ? args.split(RE_SEPARATOR) : [];
+		var argv = args !== UNDEFINED
+			? args.split(RE_SEPARATOR)
+			: [];
 
 		// Iterate argv to determine arg type
 		$.each(argv, function argsIterator(i, key) {
