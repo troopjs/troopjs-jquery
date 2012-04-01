@@ -12,7 +12,7 @@ define([ "jquery" ], function ActionModule($) {
 	var TRUE = "true";
 	var ORIGINALEVENT = "originalEvent";
 	var RE_ACTION = /^([\w\d\s_\-\/]+)(?:\.([\w\.]+))?(?:\((.*)\))?$/;
-	var RE_SEPARATOR = /[\s,]+/;
+	var RE_SEPARATOR = /\s*,\s*/;
 	var RE_DOT = /\.+/;
 	var RE_STRING = /^(["']).*\1$/;
 	var RE_DIGIT = /^\d+$/;
