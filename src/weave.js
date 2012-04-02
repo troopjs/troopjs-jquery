@@ -24,16 +24,6 @@ define([ "jquery" ], function WeaveModule($) {
 	var RE_DIGIT = /^\d+$/;
 	var RE_BOOLEAN = /^false|true$/i;
 
-	function construct(constructor, argv) {
-		function F() {
-			return constructor.apply(this, argv);
-		}
-
-		F.prototype = constructor.prototype;
-
-		return new F();
-	}
-
 	$.fn[WEAVE] = function weave(/* arg, arg, arg, */ deferred) {
 		var required = [];
 		var i = 0;
@@ -118,8 +108,8 @@ define([ "jquery" ], function WeaveModule($) {
 
 							// Simple or complicated instantiation
 							widget = l === 2
-								? new widget($element, name)
-								: new construct(widget, argv);
+								? widget($element, name)
+								: widget.apply(widget, argv);
 
 							$element
 								// Wire widget (widget)
