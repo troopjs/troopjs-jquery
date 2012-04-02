@@ -7,9 +7,9 @@ define([ "jquery" ], function WeaveModule($) {
 	var UNDEFINED = undefined;
 	var NULL = null;
 	var TRUE = true;
-	var ARRAY_PROTO = Array.prototype;
+	var ARRAY = Array;
+	var ARRAY_PROTO = ARRAY.prototype;
 	var JOIN = ARRAY_PROTO.join;
-	var PUSH = ARRAY_PROTO.push;
 	var WHEN = $.when;
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
@@ -24,9 +24,9 @@ define([ "jquery" ], function WeaveModule($) {
 	var RE_DIGIT = /^\d+$/;
 	var RE_BOOLEAN = /^false|true$/i;
 
-	function construct(constructor, args) {
+	function construct(constructor, argv) {
 		function F() {
-			return constructor.apply(this, args);
+			return constructor.apply(this, argv);
 		}
 
 		F.prototype = constructor.prototype;
@@ -34,10 +34,16 @@ define([ "jquery" ], function WeaveModule($) {
 		return new F();
 	}
 
-	$.fn[WEAVE] = function weave(deferred) {
+	$.fn[WEAVE] = function weave(/* arg, arg, arg, */ deferred) {
 		var required = [];
 		var i = 0;
 		var $elements = $(this);
+
+		// Make arguments into a real array
+		var argx  = ARRAY.apply(ARRAY_PROTO, arguments);
+
+		// Update deferred to the last argument
+		deferred = argx.pop();
 
 		$elements.each(function elementIterator(index, element) {
 			var $element = $(element);
@@ -74,42 +80,46 @@ define([ "jquery" ], function WeaveModule($) {
 						// Require widget
 						require([ name ], function required(widget) {
 							var k;
+							var l;
 							var kMax;
 							var value;
-							var argv;
 
-							// If we we're not able to match args we can do a simple instantiation
-							if (args === UNDEFINED) {
-								widget = new widget($element, name);
+							// Set initial argv
+							var argv = [ $element, name ];
+
+							// Copy values from argx to argv
+							for (k = 0, kMax = argx.length, l = argv.length; k < kMax; k++, l++) {
+								argv[l] = arg[k];
 							}
-							// Otherwise, complicated
-							else {
-								// Store $element and name as first two arguments
-								argv = [ $element, name ];
 
-								// Append widget arguments
-								PUSH.apply(argv, args.split(RE_SEPARATOR));
+							// Any widget arguments
+							if (args !== UNDEFINED) {
+								// Convert args to array
+								args = args.split(RE_SEPARATOR);
 
-								// Iterate to set typed values
-								for (k = 2, kMax = argv.length; k < kMax; k++) {
-									value = argv[k];
+								// Iterate to 'cast' values
+								for (k = 0, kMax = args.length, l = argv.length; k < kMax; k++, l++) {
+									// Get value
+									value = args[k];
 
 									if (value in $data) {
-										argv[k] = $data[value];
+										argv[l] = $data[value];
 									} else if (RE_STRING.test(value)) {
-										argv[k] = value.slice(1, -1);
+										argv[l] = value.slice(1, -1);
 									} else if (RE_DIGIT.test(value)) {
-										argv[k] = Number(value);
+										argv[l] = Number(value);
 									} else if (RE_BOOLEAN.test(value)) {
-										argv[k] = value === TRUE;
+										argv[l] = value === TRUE;
 									} else {
-										argv[k] = UNDEFINED;
+										argv[l] = UNDEFINED;
 									}
 								}
-
-								// Construct widget
-								widget = new construct(widget, argv);
 							}
+
+							// Simple or complicated instantiation
+							widget = l === 2
+								? new widget($element, name)
+								: new construct(widget, argv);
 
 							$element
 								// Wire widget (widget)
