@@ -14,8 +14,6 @@ define([ "jquery" ], function WeaveModule($) {
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
-	var WIDGET_WEAVE = "widget/" + WEAVE;
-	var WIDGET_UNWEAVE = "widget/" + UNWEAVE;
 	var DATA_WEAVE = "data-" + WEAVE;
 	var DATA_WOVEN = "data-" + WOVEN;
 	var RE_WEAVE = /[\s,]*([\w_\-\/]+)(?:\(([^\)]+)\))?/g;
@@ -106,16 +104,13 @@ define([ "jquery" ], function WeaveModule($) {
 								}
 							}
 
-							// Simple or complicated instantiation
+							// Simple or complex instantiation
 							widget = l === 2
 								? widget($element, name)
 								: widget.apply(widget, argv);
 
-							$element
-								// Wire widget (widget)
-								.wire(widget)
-								// Trigger weave
-								.triggerHandler(WIDGET_WEAVE, [ widget ]);
+							// Build
+							widget.build();
 
 							// Store widgets[_j] and resolve with widget instance
 							dfd.resolve(widgets[_j] = widget);
@@ -167,11 +162,8 @@ define([ "jquery" ], function WeaveModule($) {
 						continue;
 					}
 
-					// Trigger unweave
-					$element.triggerHandler(WIDGET_UNWEAVE, [ widget ]);
-
-					// Unwire
-					$element.unwire(widget);
+					// Destroy
+					widget.destroy();
 				}
 
 				$element
