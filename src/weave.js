@@ -129,8 +129,8 @@ define([ "jquery" ], function WeaveModule($) {
 								// Bind destroy event handler
 								$element.bind(DESTROY, onDestroy);
 
-								// Build
-								widget.build();
+								// Finalize
+								widget.finalize();
 
 								// Store widgets[_j] and resolve with widget instance
 								dfd.resolve(widgets[_j] = widget);
