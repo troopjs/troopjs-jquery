@@ -15,6 +15,10 @@ define([ "jquery" ], function WeaveModule($) {
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
 	var DESTROY = "destroy";
+	var STARTING = "starting";
+	var STARTED = "started";
+	var STOPPING = "stopping";
+	var STOPPED = "stopped";
 	var DATA_WEAVE = "data-" + WEAVE;
 	var DATA_WOVEN = "data-" + WOVEN;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
@@ -87,7 +91,7 @@ define([ "jquery" ], function WeaveModule($) {
 								var l;
 								var kMax;
 								var value;
-							var widget;
+								var widget;
 
 								// Set initial argv
 								var argv = [ $element, name ];
@@ -140,6 +144,9 @@ define([ "jquery" ], function WeaveModule($) {
 							// Reset widgets[_j] and resolve with UNDEFINED
 							dfd.resolve(widgets[_j] = UNDEFINED);
 						}
+					})
+					.done(function doneRequire(widget) {
+						widget.state(STARTING).state(STARTED);
 					});
 
 					// Step i, j
@@ -180,8 +187,8 @@ define([ "jquery" ], function WeaveModule($) {
 
 				// Somewhat safe(r) iterator over widgets
 				while (widget = widgets.shift()) {
-					// Finalize
-					widget.finalize();
+					// State and finalize
+					widget.state(STOPPING).state(STOPPED).finalize();
 				}
 
 				$element
