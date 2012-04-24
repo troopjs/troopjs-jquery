@@ -15,10 +15,6 @@ define([ "jquery" ], function WeaveModule($) {
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
 	var DESTROY = "destroy";
-	var STARTING = "starting";
-	var STARTED = "started";
-	var STOPPING = "stopping";
-	var STOPPED = "stopped";
 	var DATA_WEAVE = "data-" + WEAVE;
 	var DATA_WOVEN = "data-" + WOVEN;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
@@ -146,7 +142,7 @@ define([ "jquery" ], function WeaveModule($) {
 						}
 					})
 					.done(function doneRequire(widget) {
-						widget.state(STARTING).state(STARTED);
+						widget.state("starting").state("started");
 					});
 
 					// Step i, j
@@ -188,7 +184,7 @@ define([ "jquery" ], function WeaveModule($) {
 				// Somewhat safe(r) iterator over widgets
 				while (widget = widgets.shift()) {
 					// State and finalize
-					widget.state(STOPPING).state(STOPPED).finalize();
+					widget.state("stopping").state("stopped").finalize();
 				}
 
 				$element
