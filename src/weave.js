@@ -3,7 +3,7 @@
  * @license TroopJS 0.0.1 Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-define([ "jquery" ], function WeaveModule($) {
+define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 	var UNDEFINED = undefined;
 	var TRUE = true;
 	var ARRAY = Array;
@@ -68,7 +68,7 @@ define([ "jquery" ], function WeaveModule($) {
 				// Iterate widgets (while the RE_WEAVE matches)
 				while (matches = re.exec(weave)) {
 					// Add deferred to required array
-					$.Deferred(function deferedRequire(dfd) {
+					Deferred(function deferedRequire(dfd) {
 						var _j = j++; // store _j before we increment
 						var k;
 						var l;
@@ -128,8 +128,8 @@ define([ "jquery" ], function WeaveModule($) {
 								.bind(DESTROY, onDestroy)
 								.initialize();
 
-							$.Deferred(function deferredStarted(dfdStarted) {
-								$.Deferred(function deferredStarting(dfdStarting) {
+							Deferred(function deferredStarted(dfdStarted) {
+								Deferred(function deferredStarting(dfdStarting) {
 									widget.state("starting", dfdStarting);
 								})
 								.done(function doneStarting() {
@@ -177,8 +177,8 @@ define([ "jquery" ], function WeaveModule($) {
 				// Somewhat safe(r) iterator over widgets
 				while (widget = widgets.shift()) {
 					// State and finalize TODO add a wrapping deferred for the whole unweave
-					$.Deferred(function deferredStopped(dfdStopped) {
-						$.Deferred(function deferredStopping(dfdStopping) {
+					Deferred(function deferredStopped(dfdStopped) {
+						Deferred(function deferredStopping(dfdStopping) {
 							widget.state("stopping", dfdStopping);
 						})
 						.done(function doneStopping() {
