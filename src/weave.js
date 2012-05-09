@@ -7,9 +7,12 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 	var UNDEFINED = undefined;
 	var TRUE = true;
 	var ARRAY = Array;
+	var FUNCTION = Function;
 	var ARRAY_PROTO = ARRAY.prototype;
 	var JOIN = ARRAY_PROTO.join;
+	var POP = ARRAY_PROTO.pop;
 	var WHEN = $.when;
+	var THEN = "then";
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
@@ -37,11 +40,13 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 		var i = 0;
 		var $elements = $(this);
 
-		// Make arguments into a real array
-		var argx  = ARRAY.apply(ARRAY_PROTO, arguments);
+		var arg = arguments;
+		var argc = arg.length;
 
-		// Update deferred to the last argument
-		var deferred = argx.pop();
+		// Check if the last argument looks like a deferred, and in that case set it
+		var deferred = argc > 0 && arg[argc - 1][THEN] instanceof FUNCTION
+			? POP.call(arg)
+			: UNDEFINED;
 
 		$elements
 			// Reduce to only elements that can be woven
@@ -89,9 +94,9 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 						// Set initial argv
 						var argv = [ $element, name ];
 
-						// Append values from argx to argv
-						for (k = 0, kMax = argx.length, l = argv.length; k < kMax; k++, l++) {
-							argv[l] = argx[k];
+						// Append values from arg to argv
+						for (k = 0, kMax = arg.length, l = argv.length; k < kMax; k++, l++) {
+							argv[l] = arg[k];
 						}
 
 						// Get widget args
