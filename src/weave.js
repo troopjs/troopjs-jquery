@@ -11,7 +11,7 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 	var ARRAY_PROTO = ARRAY.prototype;
 	var JOIN = ARRAY_PROTO.join;
 	var POP = ARRAY_PROTO.pop;
-	var WHEN = $.when;
+	var $WHEN = $.when;
 	var THEN = "then";
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
@@ -127,29 +127,25 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 						}
 
 						require([ name ], function required(Widget) {
-							// Resolve with constructed, bound and initialized instance
+							// Resolve with constructed and initialized instance
 							var widget = Widget
 								.apply(Widget, argv)
-								.bind(DESTROY, onDestroy)
-								.initialize();
+								.bind(DESTROY, onDestroy);
 
-							Deferred(function deferredStarted(dfdStarted) {
-								Deferred(function deferredStarting(dfdStarting) {
-									widget.state("starting", dfdStarting);
-								})
-								.done(function doneStarting() {
-									widget.state("started", dfdStarted);
-								});
+							// Start
+							Deferred(function deferredStart(dfdStart) {
+								widget.start(dfdStart);
 							})
-							.done(function doneStarted() {
+							.done(function doneStart() {
 								dfd.resolve(widget);
-							});
+							})
+							.fail(dfd.reject);
 						});
 					});
 				}
 
 				// Slice out widgets woven for this element
-				WHEN.apply($, required.slice(mark, i)).done(function doneRequired() {
+				$WHEN.apply($, required.slice(mark, i)).done(function doneRequired() {
 					// Set DATA_WOVEN attribute
 					$element.attr(DATA_WOVEN, JOIN.call(arguments, " "));
 				});
@@ -157,7 +153,7 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 
 		if (deferred) {
 			// When all deferred are resolved, resolve original deferred
-			WHEN.apply($, required).then(deferred.resolve, deferred.reject);
+			$WHEN.apply($, required).then(deferred.resolve, deferred.reject);
 		}
 
 		return $elements;
@@ -181,17 +177,9 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 
 				// Somewhat safe(r) iterator over widgets
 				while (widget = widgets.shift()) {
-					// State and finalize TODO add a wrapping deferred for the whole unweave
-					Deferred(function deferredStopped(dfdStopped) {
-						Deferred(function deferredStopping(dfdStopping) {
-							widget.state("stopping", dfdStopping);
-						})
-						.done(function doneStopping() {
-							widget.state("stopped", dfdStopped);
-						});
-					})
-					.done(function doneStopped() {
-						widget.finalize();
+					// Stop TODO add a wrapping deferred for the whole unweave
+					Deferred(function deferredStop(dfdStop) {
+						widget.stop(dfdStop);
 					});
 				}
 
