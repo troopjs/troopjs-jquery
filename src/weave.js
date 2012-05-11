@@ -36,7 +36,7 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 	}
 
 	$.fn[WEAVE] = function weave(/* arg, arg, arg, deferred*/) {
-		var required = [];
+		var woven = [];
 		var i = 0;
 		var $elements = $(this);
 
@@ -72,7 +72,7 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 
 				// Iterate widgets (while the RE_WEAVE matches)
 				while (matches = re.exec(weave)) {
-					// Add deferred to required array
+					// Add deferred to woven array
 					Deferred(function deferedRequire(dfd) {
 						var _j = j++; // store _j before we increment
 						var k;
@@ -80,8 +80,8 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 						var kMax;
 						var value;
 
-						// Store on required
-						required[i++] = dfd;
+						// Store on woven
+						woven[i++] = dfd;
 
 						// Add done handler to register
 						dfd.done(function doneRequire(widget) {
@@ -145,7 +145,7 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 				}
 
 				// Slice out widgets woven for this element
-				$WHEN.apply($, required.slice(mark, i)).done(function doneRequired() {
+				$WHEN.apply($, woven.slice(mark, i)).done(function doneRequired() {
 					// Set DATA_WOVEN attribute
 					$element.attr(DATA_WOVEN, JOIN.call(arguments, " "));
 				});
@@ -153,14 +153,18 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 
 		if (deferred) {
 			// When all deferred are resolved, resolve original deferred
-			$WHEN.apply($, required).then(deferred.resolve, deferred.reject);
+			$WHEN.apply($, woven).then(deferred.resolve, deferred.reject);
 		}
 
 		return $elements;
 	};
 
-	$.fn[UNWEAVE] = function unweave() {
-		return $(this)
+	$.fn[UNWEAVE] = function unweave(deferred) {
+		var unwoven = [];
+		var i = 0;
+		var $elements = $(this);
+
+		$elements
 			// Reduce to only elements that are woven
 			.filter(SELECTOR_WOVEN)
 			// Iterate
@@ -177,8 +181,11 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 
 				// Somewhat safe(r) iterator over widgets
 				while (widget = widgets.shift()) {
-					// Stop TODO add a wrapping deferred for the whole unweave
+					// Deferred stop
 					Deferred(function deferredStop(dfdStop) {
+						// Store on onwoven
+						unwoven[i++] = dfdStop;
+
 						widget.stop(dfdStop);
 					});
 				}
@@ -191,5 +198,12 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 					// Make sure to clean the destroy event handler
 					.unbind(DESTROY, onDestroy);
 			});
+
+		if (deferred) {
+			// When all deferred are resolved, resolve original deferred
+			$WHEN.apply($, unwoven).then(deferred.resolve, deferred.reject);
+		}
+
+		return $elements;
 	};
 });
