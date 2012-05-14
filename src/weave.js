@@ -3,7 +3,7 @@
  * @license TroopJS 0.0.1 Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
+define([ "jquery" ], function WeaveModule($) {
 	var UNDEFINED = undefined;
 	var TRUE = true;
 	var ARRAY = Array;
@@ -73,7 +73,7 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 				// Iterate widgets (while the RE_WEAVE matches)
 				while (matches = re.exec(weave)) {
 					// Add deferred to woven array
-					Deferred(function deferedRequire(dfd) {
+					$.Deferred(function deferedRequire(dfd) {
 						var _j = j++; // store _j before we increment
 						var k;
 						var l;
@@ -133,7 +133,7 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 								.bind(DESTROY, onDestroy);
 
 							// Start
-							Deferred(function deferredStart(dfdStart) {
+							$.Deferred(function deferredStart(dfdStart) {
 								widget.start(dfdStart);
 							})
 							.done(function doneStart() {
@@ -181,8 +181,8 @@ define([ "jquery", "deferred" ], function WeaveModule($, Deferred) {
 
 				// Somewhat safe(r) iterator over widgets
 				while (widget = widgets.shift()) {
-					// Deferred stop
-					Deferred(function deferredStop(dfdStop) {
+					// $.Deferred stop
+					$.Deferred(function deferredStop(dfdStop) {
 						// Store on onwoven
 						unwoven[i++] = dfdStop;
 
