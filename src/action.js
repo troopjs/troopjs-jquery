@@ -74,11 +74,8 @@ define([ "jquery" ], function ActionModule($) {
 	 * @param $event jQuery event
 	 */
 	function handler($event) {
-		// Get timestamp of this event
-		var timeStamp = $event.timeStamp;
-
-		// Get closest element that has an action defined, and has not been triggered by this timestamp
-		var $target = $($event.target).closest("[data-action][data-action-time-stamp!='" + timeStamp +"']");
+		// Get closest element that has an action defined
+		var $target = $($event.target).closest("[data-action]");
 
 		// Fail fast if there is no action available
 		if ($target.length === 0) {
@@ -128,13 +125,14 @@ define([ "jquery" ], function ActionModule($) {
 		});
 
 		$target
-			// Set data-action-time-stamp
-			.attr("data-action-time-stamp", timeStamp)
 			// Trigger exclusive ACTION event
 			.trigger($.Event($event, {
 				type: ACTION + "!",
 				action: name
 			}), argv);
+
+		// Since we've translated the event, stop propagation
+		$event.stopPropagation();
 	}
 
 	$.event.special[ACTION] = {
