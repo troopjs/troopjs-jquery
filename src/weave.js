@@ -24,7 +24,8 @@ define([ "jquery" ], function WeaveModule($) {
 	var RE_SEPARATOR = /\s*,\s*/;
 	var RE_STRING = /^(["']).*\1$/;
 	var RE_DIGIT = /^\d+$/;
-	var RE_BOOLEAN = /^false|true$/i;
+	var RE_BOOLEAN = /^(?:false|true)$/i;
+	var RE_BOOLEAN_TRUE = /^true$/i;
 
 	/**
 	 * Generic destroy handler.
@@ -119,7 +120,7 @@ define([ "jquery" ], function WeaveModule($) {
 								} else if (RE_DIGIT.test(value)) {
 									argv[l] = Number(value);
 								} else if (RE_BOOLEAN.test(value)) {
-									argv[l] = value === TRUE;
+									argv[l] = RE_BOOLEAN_TRUE.test(value);
 								} else {
 									argv[l] = value;
 								}
