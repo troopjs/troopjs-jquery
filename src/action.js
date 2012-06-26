@@ -9,14 +9,14 @@ define([ "jquery" ], function ActionModule($) {
 	var NULL = null;
 	var SLICE = Array.prototype.slice;
 	var ACTION = "action";
-	var TRUE = "true";
 	var ORIGINALEVENT = "originalEvent";
 	var RE_ACTION = /^([\w\d\s_\-\/]+)(?:\.([\w\.]+))?(?:\((.*)\))?$/;
 	var RE_SEPARATOR = /\s*,\s*/;
 	var RE_DOT = /\.+/;
 	var RE_STRING = /^(["']).*\1$/;
 	var RE_DIGIT = /^\d+$/;
-	var RE_BOOLEAN = /^false|true$/i;
+	var RE_BOOLEAN = /^(?:false|true)$/i;
+	var RE_BOOLEAN_TRUE = /^true$/i;
 
 	/**
 	 * Namespace iterator
@@ -118,7 +118,7 @@ define([ "jquery" ], function ActionModule($) {
 			} else if (RE_DIGIT.test(value)) {
 				argv[i] = Number(value);
 			} else if (RE_BOOLEAN.test(value)) {
-				argv[i] = value === TRUE;
+				argv[i] = RE_BOOLEAN_TRUE.test(value);;
 			} else {
 				argv[i] = UNDEFINED;
 			}
