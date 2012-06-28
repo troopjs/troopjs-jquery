@@ -5,7 +5,6 @@
  */
 define([ "jquery" ], function WeaveModule($) {
 	var UNDEFINED = undefined;
-	var TRUE = true;
 	var ARRAY = Array;
 	var FUNCTION = Function;
 	var ARRAY_PROTO = ARRAY.prototype;
