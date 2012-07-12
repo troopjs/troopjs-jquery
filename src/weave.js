@@ -9,7 +9,6 @@ define([ "jquery" ], function WeaveModule($) {
 	var FUNCTION = Function;
 	var ARRAY_PROTO = ARRAY.prototype;
 	var JOIN = ARRAY_PROTO.join;
-	var POP = ARRAY_PROTO.pop;
 	var $WHEN = $.when;
 	var THEN = "then";
 	var WEAVE = "weave";
