@@ -166,6 +166,8 @@ define([ "jquery" ], function WeaveModule($) {
 		var i = 0;
 		var $elements = $(this);
 
+		deferred = deferred || $.Deferred();
+
 		$elements
 			// Reduce to only elements that are woven
 			.filter(SELECTOR_WOVEN)
@@ -203,7 +205,7 @@ define([ "jquery" ], function WeaveModule($) {
 
 		if (deferred) {
 			// When all deferred are resolved, resolve original deferred
-			$WHEN.apply($, unwoven).then(deferred.resolve, deferred.reject);
+			$WHEN.apply($, unwoven).then(deferred.resolve, deferred.reject, deferred.notify);
 		}
 
 		return $elements;
