@@ -43,10 +43,12 @@ define([ "jquery" ], function WeaveModule($) {
 		var arg = arguments;
 		var argc = arg.length;
 
-		// Check if the last argument looks like a deferred, and in that case set it
-		var deferred = argc > 0 && arg[argc - 1][THEN] instanceof FUNCTION
-			? POP.call(arg)
-			: UNDEFINED;
+		var deferred = arg[argc - 1];
+
+		// If deferred not a true Deferred, make it so
+		if (deferred === UNDEFINED || !(deferred[THEN] instanceof FUNCTION)) {
+			deferred = $.Deferred();
+		}
 
 		$elements
 			// Reduce to only elements that can be woven
@@ -72,8 +74,8 @@ define([ "jquery" ], function WeaveModule($) {
 
 				// Iterate widgets (while the RE_WEAVE matches)
 				while (matches = re.exec(weave)) {
-					// Add deferred to woven array
-					$.Deferred(function deferedRequire(dfd) {
+					// Defer weave
+					$.Deferred(function deferedRequire(dfdWeave) {
 						var _j = j++; // store _j before we increment
 						var k;
 						var l;
@@ -81,12 +83,12 @@ define([ "jquery" ], function WeaveModule($) {
 						var value;
 
 						// Store on woven
-						woven[i++] = dfd;
+						woven[i++] = dfdWeave;
 
-						// Add done handler to register
-						dfd.done(function doneRequire(widget) {
+						// Link deferred
+						dfdWeave.then(function doneRequire(widget) {
 							widgets[_j] = widget;
-						});
+						}, deferred.reject, deferred.notify);
 
 						// Get widget name
 						var name = matches[1];
@@ -127,24 +129,21 @@ define([ "jquery" ], function WeaveModule($) {
 						}
 
 						require([ name ], function required(Widget) {
-							// Resolve with constructed and initialized instance
-							var widget = Widget
-								.apply(Widget, argv)
-								.bind(DESTROY, onDestroy);
+							// Defer require
+							$.Deferred(function deferredStart(dfdRequire) {
+								// Constructed and initialized instance
+								var widget = Widget
+									.apply(Widget, argv)
+									.bind(DESTROY, onDestroy);
 
-							if (deferred){
-								// notify deferred we wired an widget
-								deferred.notifyWith(widget, ['wired', widget]);
-							}
+								// Link deferred
+								dfdRequire.then(function doneStart() {
+									dfdWeave.resolve(widget);
+								}, dfdWeave.reject, dfdWeave.notify);
 
-							// Start
-							$.Deferred(function deferredStart(dfdStart) {
-								widget.start(dfdStart);
-							})
-							.done(function doneStart() {
-								dfd.resolve(widget);
-							})
-							.fail(dfd.reject);
+								// Start
+								widget.start(dfdRequire);
+							});
 						});
 					});
 				}
@@ -156,10 +155,8 @@ define([ "jquery" ], function WeaveModule($) {
 				});
 			});
 
-		if (deferred) {
-			// When all deferred are resolved, resolve original deferred
-			$WHEN.apply($, woven).then(deferred.resolve, deferred.reject);
-		}
+		// When all deferred are resolved, resolve original deferred
+		$WHEN.apply($, woven).then(deferred.resolve, deferred.reject, deferred.notify);
 
 		return $elements;
 	};
