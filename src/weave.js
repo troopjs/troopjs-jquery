@@ -9,6 +9,7 @@ define([ "jquery" ], function WeaveModule($) {
 	var FUNCTION = Function;
 	var ARRAY_PROTO = ARRAY.prototype;
 	var JOIN = ARRAY_PROTO.join;
+	var POP = ARRAY_PROTO.pop;
 	var $WHEN = $.when;
 	var THEN = "then";
 	var WEAVE = "weave";
@@ -38,16 +39,12 @@ define([ "jquery" ], function WeaveModule($) {
 		var woven = [];
 		var i = 0;
 		var $elements = $(this);
-
 		var arg = arguments;
-		var argc = arg.length;
-
-		var deferred = arg[argc - 1];
 
 		// If deferred not a true Deferred, make it so
-		if (deferred === UNDEFINED || !(deferred[THEN] instanceof FUNCTION)) {
-			deferred = $.Deferred();
-		}
+		var deferred = arg[arg.length - 1][THEN] instanceof FUNCTION
+			? POP.call(arg)
+			: $.Deferred();
 
 		$elements
 			// Reduce to only elements that can be woven
