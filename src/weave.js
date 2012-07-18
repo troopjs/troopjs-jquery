@@ -15,12 +15,15 @@ define([ "jquery" ], function WeaveModule($) {
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
+	var WEAVING = "weaving";
 	var PENDING = "pending";
 	var DESTROY = "destroy";
-	var DATA_WEAVE = "data-" + WEAVE;
-	var DATA_WOVEN = "data-" + WOVEN;
+	var DATA = "data-";
+	var DATA_WEAVE = DATA + WEAVE;
+	var DATA_WOVEN = DATA + WOVEN;
+	var DATA_WEAVING = DATA + WEAVING;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
-	var SELECTOR_WOVEN = "[" + DATA_WOVEN + "]";
+	var SELECTOR_UNWEAVE = "[" + DATA_WEAVING + "],[" + DATA_WOVEN + "]";
 	var RE_SEPARATOR = /\s*,\s*/;
 	var RE_STRING = /^(["']).*\1$/;
 	var RE_DIGIT = /^\d+$/;
@@ -67,10 +70,12 @@ define([ "jquery" ], function WeaveModule($) {
 					$element
 						// Make sure to remove DATA_WEAVE (so we don't try processing this again)
 						.removeAttr(DATA_WEAVE)
+						// Set DATA_WEAVING (so that unweave can pick this up)
+						.attr(DATA_WEAVING, weave)
 						// Bind destroy event
 						.bind(DESTROY, onDestroy);
 
-					// Iterate woven (while the RE_WEAVE matches)
+					// Iterate woven (while RE_WEAVE matches)
 					while (matches = re.exec(weave)) {
 						// Defer weave
 						$.Deferred(function deferredRequire(dfdWeave) {
@@ -146,8 +151,11 @@ define([ "jquery" ], function WeaveModule($) {
 
 					// Slice out woven woven for this element
 					$WHEN.apply($, pending).done(function donePending() {
-						// Set DATA_WOVEN attribute
-						$element.attr(DATA_WOVEN, JOIN.call(arguments, " "));
+						$element
+							// Remove DATA_WEAVING
+							.removeAttr(DATA_WEAVING)
+							// Set DATA_WOVEN with full names
+							.attr(DATA_WOVEN, JOIN.call(arguments, " "));
 					});
 				});
 			});
@@ -167,8 +175,8 @@ define([ "jquery" ], function WeaveModule($) {
 		deferred = deferred || $.Deferred();
 
 		$elements
-			// Reduce to only elements that are woven
-			.filter(SELECTOR_WOVEN)
+			// Reduce to only elements that can be unwoven
+			.filter(SELECTOR_UNWEAVE)
 			// Iterate
 			.each(function elementIterator(index, element) {
 				var $element = $(element);
@@ -207,10 +215,8 @@ define([ "jquery" ], function WeaveModule($) {
 				});
 			});
 
-		if (deferred) {
-			// When all deferred are resolved, resolve original deferred
-			$WHEN.apply($, unwoven).then(deferred.resolve, deferred.reject, deferred.notify);
-		}
+		// When all deferred are resolved, resolve original deferred
+		$WHEN.apply($, unwoven).then(deferred.resolve, deferred.reject, deferred.notify);
 
 		return $elements;
 	};
