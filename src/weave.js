@@ -173,7 +173,7 @@ define([ "jquery" ], function WeaveModule($) {
 			.each(function elementIterator(index, element) {
 				var $element = $(element);
 				var $data = $element.data();
-				var pending = $data[PENDING];
+				var pending = $data[PENDING] || ($data[PENDING] = []);
 				var woven = $data[WOVEN];
 				var widget;
 
