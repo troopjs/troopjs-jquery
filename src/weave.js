@@ -198,7 +198,6 @@ define([ "jquery" ], function WeaveModule($) {
 					var $data = $element.data();
 					var pending = $data[PENDING] || ($data[PENDING] = []);
 					var woven = $data[WOVEN] || [];
-					var widget;
 
 					// Link deferred
 					dfdUnweave.done(function doneUnweave() {
@@ -215,6 +214,7 @@ define([ "jquery" ], function WeaveModule($) {
 					// Wait for all pending deferred
 					$WHEN.apply($, pending).done(function donePending() {
 						var mark = i;
+						var widget;
 
 						// Push dfdUnweave on pending to signify we're starting a new task
 						pending.push(dfdUnweave);
