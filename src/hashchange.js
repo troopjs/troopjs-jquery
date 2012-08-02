@@ -1,12 +1,14 @@
 /*!
  * TroopJS jQuery hashchange plug-in
- * @license TroopJS 0.0.1 Copyright 2012, Mikael Karon <mikael@karon.se>
- * Released under the MIT license.
- */
-/**
+ *
  * Normalized hashchange event, ripped a _lot_ of code from
  * https://github.com/millermedeiros/Hasher
+ *
+ * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
+ * Released under the MIT license.
  */
+/*jshint strict:false, smarttabs:true, laxbreak:true, evil:true */
+/*global define:true */
 define([ "jquery" ], function HashchangeModule($) {
 	var INTERVAL = "interval";
 	var HASHCHANGE = "hashchange";
@@ -14,8 +16,8 @@ define([ "jquery" ], function HashchangeModule($) {
 	var RE_HASH = /#(.*)$/;
 	var RE_LOCAL = /\?/;
 
-	// hack based on this: http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
-	var _isIE = !+"\v1";
+	// hack based on this: http://code.google.com/p/closure-compiler/issues/detail?id=47#c13
+	var _isIE = /**@preserve@cc_on !@*/0;
 
 	function getHash(window) {
 		// parsed full URL instead of getting location.hash because Firefox
@@ -38,15 +40,15 @@ define([ "jquery" ], function HashchangeModule($) {
 	}
 
 	Frame.prototype = {
-		getElement : function getElement() {
+		getElement : function () {
 			return this.element;
 		},
 
-		getHash : function getHash() {
+		getHash : function () {
 			return this.element.contentWindow.frameHash;
 		},
 
-		update : function update(hash) {
+		update : function (hash) {
 			var self = this;
 			var document = self.element.contentWindow.document;
 
