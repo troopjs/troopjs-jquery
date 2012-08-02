@@ -6,7 +6,8 @@
 /*jshint strict:false, smarttabs:true, laxbreak:true, loopfunc:true */
 /*global define:true */
 define([ "jquery" ], function WeaveModule($) {
-	var UNDEFINED;
+    var UNDEFINED;
+	var NULL = null;
 	var ARRAY = Array;
 	var FUNCTION = Function;
 	var ARRAY_PROTO = ARRAY.prototype;
@@ -93,7 +94,7 @@ define([ "jquery" ], function WeaveModule($) {
 							.bind(DESTROY, onDestroy);
 
 						// Iterate woven (while RE_WEAVE matches)
-						while ((matches = re.exec(weave)) !== UNDEFINED) {
+						while ((matches = re.exec(weave)) !== NULL) {
 							// Defer widget
 							$.Deferred(function deferredWidget(dfdWidget) {
 								var _j = j++; // store _j before we increment

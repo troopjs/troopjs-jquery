@@ -6,7 +6,7 @@
 /*jshint strict:false, smarttabs:true */
 /*global define:true */
 define([ "jquery" ], function DimensionsModule($) {
-	var UNDEFINED;
+	var NULL = null;
 	var DIMENSIONS = "dimensions";
 	var RESIZE = "resize." + DIMENSIONS;
 	var W = "w";
@@ -89,7 +89,7 @@ define([ "jquery" ], function DimensionsModule($) {
 			var re = /(w|h)(\d+)/g;
 			var matches;
 
-			while ((matches = re.exec(namespace)) !== UNDEFINED) {
+			while ((matches = re.exec(namespace)) !== NULL) {
 				dimension[matches[1]].push(parseInt(matches[2], 10));
 			}
 
