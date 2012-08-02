@@ -3,8 +3,10 @@
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
+/*jshint strict:false, smarttabs:true, laxbreak:true */
+/*global define:true */
 define([ "jquery" ], function ActionModule($) {
-	var UNDEFINED = undefined;
+	var UNDEFINED;
 	var FALSE = false;
 	var NULL = null;
 	var SLICE = Array.prototype.slice;
@@ -118,7 +120,7 @@ define([ "jquery" ], function ActionModule($) {
 			} else if (RE_DIGIT.test(value)) {
 				argv[i] = Number(value);
 			} else if (RE_BOOLEAN.test(value)) {
-				argv[i] = RE_BOOLEAN_TRUE.test(value);;
+				argv[i] = RE_BOOLEAN_TRUE.test(value);
 			} else {
 				argv[i] = UNDEFINED;
 			}

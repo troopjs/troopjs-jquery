@@ -3,7 +3,10 @@
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
+/*jshint strict:false, smarttabs:true */
+/*global define:true */
 define([ "jquery" ], function DimensionsModule($) {
+	var UNDEFINED;
 	var DIMENSIONS = "dimensions";
 	var RESIZE = "resize." + DIMENSIONS;
 	var W = "w";
@@ -86,8 +89,8 @@ define([ "jquery" ], function DimensionsModule($) {
 			var re = /(w|h)(\d+)/g;
 			var matches;
 
-			while (matches = re.exec(namespace)) {
-				dimension[matches[1]].push(parseInt(matches[2]));
+			while ((matches = re.exec(namespace)) !== UNDEFINED) {
+				dimension[matches[1]].push(parseInt(matches[2], 10));
 			}
 
 			w.sort(reverse);

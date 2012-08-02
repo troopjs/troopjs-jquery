@@ -3,8 +3,10 @@
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
+/*jshint strict:false, smarttabs:true, laxbreak:true, loopfunc:true */
+/*global define:true */
 define([ "jquery" ], function WeaveModule($) {
-	var UNDEFINED = undefined;
+	var UNDEFINED;
 	var ARRAY = Array;
 	var FUNCTION = Function;
 	var ARRAY_PROTO = ARRAY.prototype;
@@ -91,7 +93,7 @@ define([ "jquery" ], function WeaveModule($) {
 							.bind(DESTROY, onDestroy);
 
 						// Iterate woven (while RE_WEAVE matches)
-						while (matches = re.exec(weave)) {
+						while ((matches = re.exec(weave)) !== UNDEFINED) {
 							// Defer widget
 							$.Deferred(function deferredWidget(dfdWidget) {
 								var _j = j++; // store _j before we increment
@@ -227,7 +229,7 @@ define([ "jquery" ], function WeaveModule($) {
 							.removeAttr(DATA_WOVEN);
 
 						// Somewhat safe(r) iterator over woven
-						while (widget = woven.shift()) {
+						while ((widget = woven.shift()) !== UNDEFINED) {
 							// Defer widget
 							$.Deferred(function deferredWidget(dfdWidget) {
 								// Add to unwoven and pending

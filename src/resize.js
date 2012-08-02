@@ -1,12 +1,13 @@
 /*!
  * TroopJS jQuery resize plug-in
+ *
+ * Heavy inspiration from https://github.com/cowboy/jquery-resize.git
+ *
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-/**
- * Trigger resize on all elements
- * Heavy inspiration from https://github.com/cowboy/jquery-resize.git
- */
+/*jshint strict:false, smarttabs:true */
+/*global define:true */
 define([ "jquery" ], function ResizeModule($) {
 	var NULL = null;
 	var RESIZE = "resize";
