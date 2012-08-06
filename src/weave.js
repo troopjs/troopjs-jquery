@@ -5,7 +5,7 @@
  */
 /*jshint strict:false, smarttabs:true, laxbreak:true, loopfunc:true */
 /*global define:true */
-define([ "jquery" ], function WeaveModule($) {
+define([ "jquery", "troopjs-utils/getargs" ], function WeaveModule($, getargs) {
     var UNDEFINED;
 	var NULL = null;
 	var ARRAY = Array;
@@ -27,11 +27,6 @@ define([ "jquery" ], function WeaveModule($) {
 	var DATA_WEAVING = DATA + WEAVING;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
 	var SELECTOR_UNWEAVE = "[" + DATA_WEAVING + "],[" + DATA_WOVEN + "]";
-	var RE_SEPARATOR = /\s*,\s*/;
-	var RE_STRING = /^(["']).*\1$/;
-	var RE_DIGIT = /^\d+$/;
-	var RE_BOOLEAN = /^(?:false|true)$/i;
-	var RE_BOOLEAN_TRUE = /^true$/i;
 
 	/**
 	 * Generic destroy handler.
@@ -127,25 +122,18 @@ define([ "jquery" ], function WeaveModule($) {
 
 								// Any widget arguments
 								if (args !== UNDEFINED) {
-									// Convert args to array
-									args = args.split(RE_SEPARATOR);
+									// Convert args using getargs
+									args = getargs.call(args);
 
 									// Append typed values from args to argv
 									for (k = 0, kMax = args.length, l = argv.length; k < kMax; k++, l++) {
 										// Get value
 										value = args[k];
 
-										if (value in $data) {
-											argv[l] = $data[value];
-										} else if (RE_STRING.test(value)) {
-											argv[l] = value.slice(1, -1);
-										} else if (RE_DIGIT.test(value)) {
-											argv[l] = Number(value);
-										} else if (RE_BOOLEAN.test(value)) {
-											argv[l] = RE_BOOLEAN_TRUE.test(value);
-										} else {
-											argv[l] = value;
-										}
+										// Get value from $data or fall back to pure value
+										argv[l] = value in $data
+											? $data[value]
+											: value;
 									}
 								}
 
