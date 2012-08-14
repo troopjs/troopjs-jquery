@@ -77,7 +77,7 @@ define([ "jquery" ], function WeaveModule($) {
 
 					// Wait for all pending deferred
 					$WHEN.apply($, pending).then(function donePending() {
-						var re = /[\s,]*([\w_\-\/]+)(?:\(([^\)]+)\))?/g;
+						var re = /[\s,]*([\w_\-\/\.]+)(?:\(([^\)]+)\))?/g;
 						var mark = i;
 						var j = 0;
 						var matches;
