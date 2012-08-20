@@ -5,7 +5,7 @@
  */
 /*jshint strict:false, smarttabs:true, laxbreak:true, loopfunc:true */
 /*global define:true */
-define([ "jquery", "troopjs-utils/getargs" ], function WeaveModule($, getargs) {
+define([ "jquery", "troopjs-utils/getargs", "require" ], function WeaveModule($, getargs, parentRequire) {
     var UNDEFINED;
 	var NULL = null;
 	var ARRAY = Array;
@@ -169,7 +169,7 @@ define([ "jquery", "troopjs-utils/getargs" ], function WeaveModule($, getargs) {
 								}
 
 								// Require module
-								require([ name ], function required(Widget) {
+								parentRequire([ name ], function required(Widget) {
 									// Defer start
 									$.Deferred(function deferredStart(dfdStart) {
 										// Constructed and initialized instance
