@@ -5,13 +5,14 @@
  */
 /*jshint strict:false, smarttabs:true, laxbreak:true, loopfunc:true */
 /*global define:true */
-define([ "jquery" ], function WeaveModule($) {
+define([ "jquery", "troopjs-utils/getargs", "require" ], function WeaveModule($, getargs, parentRequire) {
     var UNDEFINED;
 	var NULL = null;
 	var ARRAY = Array;
 	var FUNCTION = Function;
 	var ARRAY_PROTO = ARRAY.prototype;
 	var JOIN = ARRAY_PROTO.join;
+	var PUSH = ARRAY_PROTO.push;
 	var POP = ARRAY_PROTO.pop;
 	var $WHEN = $.when;
 	var THEN = "then";
@@ -27,11 +28,6 @@ define([ "jquery" ], function WeaveModule($) {
 	var DATA_WEAVING = DATA + WEAVING;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
 	var SELECTOR_UNWEAVE = "[" + DATA_WEAVING + "],[" + DATA_WOVEN + "]";
-	var RE_SEPARATOR = /\s*,\s*/;
-	var RE_STRING = /^(["']).*\1$/;
-	var RE_DIGIT = /^\d+$/;
-	var RE_BOOLEAN = /^(?:false|true)$/i;
-	var RE_BOOLEAN_TRUE = /^true$/i;
 
 	/**
 	 * Generic destroy handler.
@@ -40,6 +36,36 @@ define([ "jquery" ], function WeaveModule($) {
 	function onDestroy() {
 		$(this).unweave();
 	}
+
+	$.expr[":"][WOVEN] = $.expr.createPseudo
+		? $.expr.createPseudo(function (widgets) {
+			if (widgets !== UNDEFINED) {
+				widgets = RegExp($.map(getargs.call(widgets), function (widget) {
+					return "^" + widget + "@";
+				}).join("|"), "m");
+			}
+
+			return function (element, context, isXml) {
+				var woven = $(element).attr(DATA_WOVEN);
+
+				return woven === UNDEFINED
+					? false
+					: widgets === UNDEFINED
+						? true
+						: widgets.test(woven.split(/[\s,]+/).join("\n"));
+			};
+		})
+		: function (element, index, match) {
+			var woven = $(element).attr(DATA_WOVEN);
+
+			return woven === UNDEFINED
+				? false
+				: match === UNDEFINED
+					? true
+					: RegExp($.map(getargs.call(match[3]), function (widget) {
+						return "^" + widget + "@";
+					}).join("|"), "m").test(woven.split(/[\s,]+/).join("\n"));
+		};
 
 	$.fn[WEAVE] = function weave(/* arg, arg, arg, deferred*/) {
 		var widgets = [];
@@ -83,7 +109,7 @@ define([ "jquery" ], function WeaveModule($) {
 						var matches;
 
 						// Push dfdWeave on pending to signify we're starting a new task
-						pending.push(dfdWeave);
+						PUSH.call(pending, dfdWeave);
 
 						$element
 							// Make sure to remove DATA_WEAVE (so we don't try processing this again)
@@ -127,30 +153,23 @@ define([ "jquery" ], function WeaveModule($) {
 
 								// Any widget arguments
 								if (args !== UNDEFINED) {
-									// Convert args to array
-									args = args.split(RE_SEPARATOR);
+									// Convert args using getargs
+									args = getargs.call(args);
 
 									// Append typed values from args to argv
 									for (k = 0, kMax = args.length, l = argv.length; k < kMax; k++, l++) {
 										// Get value
 										value = args[k];
 
-										if (value in $data) {
-											argv[l] = $data[value];
-										} else if (RE_STRING.test(value)) {
-											argv[l] = value.slice(1, -1);
-										} else if (RE_DIGIT.test(value)) {
-											argv[l] = Number(value);
-										} else if (RE_BOOLEAN.test(value)) {
-											argv[l] = RE_BOOLEAN_TRUE.test(value);
-										} else {
-											argv[l] = value;
-										}
+										// Get value from $data or fall back to pure value
+										argv[l] = value in $data
+											? $data[value]
+											: value;
 									}
 								}
 
 								// Require module
-								require([ name ], function required(Widget) {
+								parentRequire([ name ], function required(Widget) {
 									// Defer start
 									$.Deferred(function deferredStart(dfdStart) {
 										// Constructed and initialized instance
@@ -180,7 +199,6 @@ define([ "jquery" ], function WeaveModule($) {
 
 		return $elements;
 	};
-
 
 	$.fn[UNWEAVE] = function unweave(deferred) {
 		var widgets = [];
@@ -220,7 +238,7 @@ define([ "jquery" ], function WeaveModule($) {
 						var widget;
 
 						// Push dfdUnweave on pending to signify we're starting a new task
-						pending.push(dfdUnweave);
+						PUSH.call(pending, dfdUnweave);
 
 						// Remove WOVEN data
 						delete $data[WOVEN];
@@ -259,5 +277,30 @@ define([ "jquery" ], function WeaveModule($) {
 		$WHEN.apply($, widgets).then(deferred.resolve, deferred.reject, deferred.notify);
 
 		return $elements;
+	};
+
+	$.fn[WOVEN] = function woven(/* arg, arg */) {
+		var result = [];
+		var widgets = arguments.length > 0
+			? RegExp($.map(arguments, function (widget) {
+				return "^" + widget + "$";
+			}).join("|"), "m")
+			: UNDEFINED;
+
+		$(this).each(function elementIterator(index, element) {
+			if (!$.hasData(element)) {
+				return;
+			}
+
+			PUSH.apply(result, widgets === UNDEFINED
+				? $.data(element, WOVEN)
+				: $.map($.data(element, WOVEN), function (woven) {
+					return widgets.test(woven.displayName)
+						? woven
+						: UNDEFINED;
+				}));
+		});
+
+		return result;
 	};
 });
