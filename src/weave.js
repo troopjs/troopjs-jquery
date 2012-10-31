@@ -37,35 +37,65 @@ define([ "jquery", "troopjs-utils/getargs", "require" ], function WeaveModule($,
 		$(this).unweave();
 	}
 
+	$.expr[":"][WEAVE] = $.expr.createPseudo
+		? $.expr.createPseudo(function (widgets) {
+		if (widgets !== UNDEFINED) {
+			widgets = RegExp($.map(getargs.call(widgets), function (widget) {
+				return "^" + widget + "$";
+			}).join("|"), "m");
+		}
+
+		return function (element, context, isXml) {
+			var weave = $(element).attr(DATA_WEAVE);
+
+			return weave === UNDEFINED
+				? false
+				: widgets === UNDEFINED
+					? true
+					: widgets.test(weave.split(/[\s,]+/).join("\n"));
+		};
+	})
+		: function (element, index, match) {
+		var weave = $(element).attr(DATA_WEAVE);
+
+		return weave === UNDEFINED
+			? false
+			: match === UNDEFINED
+				? true
+				: RegExp($.map(getargs.call(match[3]), function (widget) {
+			return "^" + widget + "$";
+		}).join("|"), "m").test(weave.split(/[\s,]+/).join("\n"));
+	};
+
 	$.expr[":"][WOVEN] = $.expr.createPseudo
 		? $.expr.createPseudo(function (widgets) {
-			if (widgets !== UNDEFINED) {
-				widgets = RegExp($.map(getargs.call(widgets), function (widget) {
-					return "^" + widget + "@";
-				}).join("|"), "m");
-			}
+		if (widgets !== UNDEFINED) {
+			widgets = RegExp($.map(getargs.call(widgets), function (widget) {
+				return "^" + widget + "@\\d+";
+			}).join("|"), "m");
+		}
 
-			return function (element, context, isXml) {
-				var woven = $(element).attr(DATA_WOVEN);
-
-				return woven === UNDEFINED
-					? false
-					: widgets === UNDEFINED
-						? true
-						: widgets.test(woven.split(/[\s,]+/).join("\n"));
-			};
-		})
-		: function (element, index, match) {
+		return function (element, context, isXml) {
 			var woven = $(element).attr(DATA_WOVEN);
 
 			return woven === UNDEFINED
 				? false
-				: match === UNDEFINED
+				: widgets === UNDEFINED
 					? true
-					: RegExp($.map(getargs.call(match[3]), function (widget) {
-						return "^" + widget + "@";
-					}).join("|"), "m").test(woven.split(/[\s,]+/).join("\n"));
+					: widgets.test(woven.split(/[\s,]+/).join("\n"));
 		};
+	})
+		: function (element, index, match) {
+		var woven = $(element).attr(DATA_WOVEN);
+
+		return woven === UNDEFINED
+			? false
+			: match === UNDEFINED
+				? true
+				: RegExp($.map(getargs.call(match[3]), function (widget) {
+			return "^" + widget + "@\\d+";
+		}).join("|"), "m").test(woven.split(/[\s,]+/).join("\n"));
+	};
 
 	$.fn[WEAVE] = function weave(/* arg, arg, arg, deferred*/) {
 		var widgets = [];
