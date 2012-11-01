@@ -55,7 +55,7 @@ define([ "jquery" ], function ResizeModule($) {
 		 *        to the browser’s native event (this is used internally for the
 		 *        beforeunload event, you’ll never use it).
 		 */
-		setup : function hashChangeSetup(data, namespaces, eventHandle) {
+		setup : function onResizeSetup(data, namespaces, eventHandle) {
 			var self = this;
 
 			// window has a native resize event, exit fast
@@ -86,7 +86,7 @@ define([ "jquery" ], function ResizeModule($) {
 		 * @param namespaces (Array) An array of namespaces specified when
 		 *        binding the event.
 		 */
-		teardown : function onDimensionsTeardown(namespaces) {
+		teardown : function onResizeTeardown(namespaces) {
 			var self = this;
 
 			// window has a native resize event, exit fast
