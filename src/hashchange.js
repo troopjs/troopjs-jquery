@@ -7,9 +7,9 @@
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-/*jshint strict:false, smarttabs:true, laxbreak:true, evil:true */
 /*global define:true */
 define([ "jquery" ], function HashchangeModule($) {
+	/*jshint strict:false, smarttabs:true, laxbreak:true, evil:true */
 	var INTERVAL = "interval";
 	var HASHCHANGE = "hashchange";
 	var ONHASHCHANGE = "on" + HASHCHANGE;

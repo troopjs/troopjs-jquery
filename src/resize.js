@@ -6,9 +6,9 @@
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-/*jshint strict:false, smarttabs:true */
 /*global define:true */
 define([ "jquery" ], function ResizeModule($) {
+	/*jshint strict:false, smarttabs:true */
 	var NULL = null;
 	var RESIZE = "resize";
 	var W = "w";
