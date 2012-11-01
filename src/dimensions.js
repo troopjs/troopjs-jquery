@@ -26,7 +26,8 @@ define([ "jquery" ], function DimensionsModule($) {
 	 * @param $event
 	 */
 	function onResize($event) {
-		var $self = $(this);
+		var self = this;
+		var $self = $(self);
 		var width = $self.width();
 		var height = $self.height();
 
