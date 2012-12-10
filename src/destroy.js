@@ -3,9 +3,10 @@
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-/*global define:true */
+/*global define:false */
 define([ "jquery" ], function DestroyModule($) {
 	/*jshint strict:false, smarttabs:true */
+
 	$.event.special.destroy = {
 		remove : function onDestroyRemove(handleObj) {
 			var self = this;

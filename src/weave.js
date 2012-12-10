@@ -3,10 +3,11 @@
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-/*global define:true */
+/*global define:false */
 define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function WeaveModule(parentRequire, $, getargs) {
 	/*jshint strict:false, smarttabs:true, laxbreak:true, loopfunc:true */
-    var UNDEFINED;
+
+	var UNDEFINED;
 	var NULL = null;
 	var ARRAY = Array;
 	var FUNCTION = Function;

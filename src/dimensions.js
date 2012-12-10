@@ -3,9 +3,10 @@
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-/*global define:true */
+/*global define:false */
 define([ "jquery" ], function DimensionsModule($) {
 	/*jshint strict:false, smarttabs:true */
+
 	var NULL = null;
 	var DIMENSIONS = "dimensions";
 	var RESIZE = "resize." + DIMENSIONS;

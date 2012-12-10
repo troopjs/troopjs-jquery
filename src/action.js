@@ -3,9 +3,10 @@
  * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
  * Released under the MIT license.
  */
-/*global define:true */
+/*global define:false */
 define([ "jquery", "troopjs-utils/getargs" ], function ActionModule($, getargs) {
 	/*jshint strict:false, smarttabs:true, laxbreak:true */
+
 	var UNDEFINED;
 	var FALSE = false;
 	var NULL = null;
