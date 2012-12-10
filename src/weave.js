@@ -10,13 +10,11 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 	var UNDEFINED;
 	var NULL = null;
 	var ARRAY = Array;
-	var FUNCTION = Function;
 	var ARRAY_PROTO = ARRAY.prototype;
 	var JOIN = ARRAY_PROTO.join;
 	var PUSH = ARRAY_PROTO.push;
-	var POP = ARRAY_PROTO.pop;
 	var $WHEN = $.when;
-	var THEN = "then";
+	var $DEFERRED = $.Deferred;
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
@@ -46,7 +44,7 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 			}).join("|"), "m");
 		}
 
-		return function (element, context, isXml) {
+		return function (element) {
 			var weave = $(element).attr(DATA_WEAVE);
 
 			return weave === UNDEFINED
@@ -76,7 +74,7 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 			}).join("|"), "m");
 		}
 
-		return function (element, context, isXml) {
+		return function (element) {
 			var woven = $(element).attr(DATA_WOVEN);
 
 			return woven === UNDEFINED
@@ -98,17 +96,11 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 		}).join("|"), "m").test(woven.split(/[\s,]+/).join("\n"));
 	};
 
-	$.fn[WEAVE] = function weave(/* arg, arg, arg, deferred*/) {
+	$.fn[WEAVE] = function weave(/* arg, arg, arg */) {
 		var widgets = [];
 		var i = 0;
 		var $elements = $(this);
 		var arg = arguments;
-		var argc = arg.length;
-
-		// If deferred not a true Deferred, make it so
-		var deferred = argc > 0 && arg[argc - 1][THEN] instanceof FUNCTION
-			? POP.call(arg)
-			: $.Deferred();
 
 		$elements
 			// Reduce to only elements that can be woven
@@ -116,7 +108,7 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 			// Iterate
 			.each(function elementIterator(index, element) {
 				// Defer weave
-				$.Deferred(function deferredWeave(dfdWeave) {
+				$DEFERRED(function deferredWeave(dfdWeave) {
 					var $element = $(element);
 					var $data = $element.data();
 					var weave = $data[WEAVE] = $element.attr(DATA_WEAVE) || "";
@@ -153,7 +145,7 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 						// Iterate woven (while RE_WEAVE matches)
 						while ((matches = re.exec(weave)) !== NULL) {
 							// Defer widget
-							$.Deferred(function deferredWidget(dfdWidget) {
+							$DEFERRED(function deferredWidget(dfdWidget) {
 								var _j = j++; // store _j before we increment
 								var k;
 								var l;
@@ -201,19 +193,13 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 
 								// Require module
 								parentRequire([ name ], function required(Widget) {
-									// Defer start
-									$.Deferred(function deferredStart(dfdStart) {
-										// Constructed and initialized instance
-										var widget = Widget.apply(Widget, argv);
+									// Instantiate widget (with argv)
+									var widget = Widget.apply(Widget, argv);
 
-										// Link deferred
-										dfdStart.then(function doneStart() {
-											dfdWidget.resolve(widget);
-										}, dfdWidget.reject, dfdWidget.notify);
-
-										// Start
-										widget.start(dfdStart);
-									});
+									// Start widget
+									widget.start().then(function resolve() {
+										dfdWidget.resolve(widget);
+									}, dfdWidget.reject, dfdWidget.notify);
 								});
 							});
 						}
@@ -225,19 +211,18 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 				});
 			});
 
-		// When all widgets are resolved, resolve original deferred
-		$WHEN.apply($, widgets).then(deferred.resolve, deferred.reject, deferred.notify);
-
-		return $elements;
+		// Return compacted combined promise
+		return $DEFERRED(function deferredWeave(dfdWeave) {
+			$WHEN.apply($, widgets).then(function resolve() {
+				dfdWeave.resolve(arguments);
+			}, dfdWeave.reject, dfdWeave.progress);
+		}).promise();
 	};
 
-	$.fn[UNWEAVE] = function unweave(deferred) {
+	$.fn[UNWEAVE] = function unweave() {
 		var widgets = [];
 		var i = 0;
 		var $elements = $(this);
-
-		// Create default deferred if none was passed
-		deferred = deferred || $.Deferred();
 
 		$elements
 			// Reduce to only elements that can be unwoven
@@ -245,7 +230,7 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 			// Iterate
 			.each(function elementIterator(index, element) {
 				// Defer unweave
-				$.Deferred(function deferredUnweave(dfdUnweave) {
+				$DEFERRED(function deferredUnweave(dfdUnweave) {
 					var $element = $(element);
 					var $data = $element.data();
 					var pending = $data[PENDING] || ($data[PENDING] = []);
@@ -281,20 +266,11 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 						// Somewhat safe(r) iterator over woven
 						while ((widget = woven.shift()) !== UNDEFINED) {
 							// Defer widget
-							$.Deferred(function deferredWidget(dfdWidget) {
+							$DEFERRED(function deferredWidget(dfdWidget) {
 								// Add to unwoven and pending
-								widgets[i++] = dfdWidget;
-
-								// $.Deferred stop
-								$.Deferred(function deferredStop(dfdStop) {
-									// Link deferred
-									dfdStop.then(function doneStop() {
-										dfdWidget.resolve(widget);
-									}, dfdWidget.reject, dfdWidget.notify);
-
-									// Stop
-									widget.stop(dfdStop);
-								});
+								widgets[i++] = widget.stop().then(function resolve() {
+									dfdWidget.resolve(widget);
+								}, dfdWidget.reject, dfdWidget.notify);
 							});
 						}
 
@@ -304,10 +280,12 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 				});
 			});
 
-		// When all deferred are resolved, resolve original deferred
-		$WHEN.apply($, widgets).then(deferred.resolve, deferred.reject, deferred.notify);
-
-		return $elements;
+		// Return compacted combined promise
+		return $DEFERRED(function deferredUnweave(dfdUnweave) {
+			$WHEN.apply($, widgets).then(function resolve() {
+				dfdUnweave.resolve(arguments);
+			}, dfdUnweave.reject, dfdUnweave.progress);
+		}).promise();
 	};
 
 	$.fn[WOVEN] = function woven(/* arg, arg */) {
