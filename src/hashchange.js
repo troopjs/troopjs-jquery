@@ -1,11 +1,9 @@
-/*!
- * TroopJS jQuery hashchange plug-in
+/**
+ * TroopJS jquery/hashchange
+ * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  *
  * Normalized hashchange event, ripped a _lot_ of code from
  * https://github.com/millermedeiros/Hasher
- *
- * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
- * Released under the MIT license.
  */
 /*global define:false */
 define([ "jquery" ], function HashchangeModule($) {

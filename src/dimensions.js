@@ -1,7 +1,6 @@
-/*!
- * TroopJS jQuery dimensions plug-in
- * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
- * Released under the MIT license.
+/**
+ * TroopJS jquery/dimensions
+ * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
 /*global define:false */
 define([ "jquery" ], function DimensionsModule($) {

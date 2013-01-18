@@ -1,10 +1,8 @@
-/*!
- * TroopJS jQuery resize plug-in
+/**
+ * TroopJS jquery/resize
+ * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  *
  * Heavy inspiration from https://github.com/cowboy/jquery-resize.git
- *
- * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
- * Released under the MIT license.
  */
 /*global define:false */
 define([ "jquery" ], function ResizeModule($) {

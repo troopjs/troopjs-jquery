@@ -1,7 +1,6 @@
-/*!
- * TroopJS jQuery weave plug-in
- * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
- * Released under the MIT license.
+/**
+ * TroopJS jquery/weave
+ * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
 /*global define:false */
 define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function WeaveModule(parentRequire, $, getargs) {
