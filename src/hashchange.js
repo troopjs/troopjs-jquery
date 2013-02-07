@@ -93,7 +93,7 @@ define([ "jquery" ], function HashchangeModule($) {
 			var location = window.location;
 
 			$window.data(INTERVAL, window.setInterval(_isIE
-				? (function hashChangeIntervalWrapper() {
+				? (function () {
 					var document = window.document;
 					var _isLocal = location.protocol === "file:";
 
@@ -101,7 +101,7 @@ define([ "jquery" ], function HashchangeModule($) {
 					document.body.appendChild(frame.getElement());
 					frame.update(hash);
 
-					return function hashChangeInterval() {
+					return function () {
 						var oldHash = hash;
 						var newHash;
 						var windowHash = getHash(window);
@@ -137,7 +137,7 @@ define([ "jquery" ], function HashchangeModule($) {
 						}
 					};
 				})()
-				: function hashChangeInterval() {
+				: function () {
 					var oldHash = hash;
 					var newHash;
 					var windowHash = getHash(window);
