@@ -39,15 +39,15 @@ define([ "jquery" ], function HashchangeModule($) {
 	}
 
 	Frame.prototype = {
-		getElement : function () {
+		"getElement" : function () {
 			return this.element;
 		},
 
-		getHash : function () {
+		"getHash" : function () {
 			return this.element.contentWindow.frameHash;
 		},
 
-		update : function (hash) {
+		"update" : function (hash) {
 			var self = this;
 			var document = self.element.contentWindow.document;
 
@@ -74,7 +74,7 @@ define([ "jquery" ], function HashchangeModule($) {
 		 *        to the browser’s native event (this is used internally for the
 		 *        beforeunload event, you’ll never use it).
 		 */
-		setup : function hashChangeSetup(data, namespaces, eventHandle) {
+		"setup" : function onHashChangeSetup(data, namespaces, eventHandle) {
 			var window = this;
 
 			// Quick return if we support onHashChange natively
@@ -158,7 +158,7 @@ define([ "jquery" ], function HashchangeModule($) {
 		 * @param namespaces (Array) An array of namespaces specified when
 		 *        binding the event.
 		 */
-		teardown : function hashChangeTeardown(namespaces) {
+		"teardown" : function onHashChangeTeardown(namespaces) {
 			var window = this;
 
 			// Quick return if we support onHashChange natively
