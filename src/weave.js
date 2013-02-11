@@ -3,29 +3,23 @@
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
 /*global define:false */
-define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function WeaveModule(parentRequire, $, getargs) {
-	/*jshint strict:false, smarttabs:true, laxbreak:true, loopfunc:true */
+define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], function WeaveModule(parentRequire, $, when, getargs) {
+	/*jshint strict:false, laxbreak:true */
 
 	var UNDEFINED;
 	var NULL = null;
-	var ARRAY = Array;
-	var ARRAY_PROTO = ARRAY.prototype;
-	var JOIN = ARRAY_PROTO.join;
-	var PUSH = ARRAY_PROTO.push;
-	var $WHEN = $.when;
-	var $DEFERRED = $.Deferred;
+	var ARRAY_PROTO = Array.prototype;
+	var ARRAY_SLICE = ARRAY_PROTO.slice;
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
-	var WEAVING = "weaving";
-	var PENDING = "pending";
 	var DESTROY = "destroy";
+	var LENGTH = "length";
 	var DATA = "data-";
 	var DATA_WEAVE = DATA + WEAVE;
 	var DATA_WOVEN = DATA + WOVEN;
-	var DATA_WEAVING = DATA + WEAVING;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
-	var SELECTOR_UNWEAVE = "[" + DATA_WEAVING + "],[" + DATA_WOVEN + "]";
+	var SELECTOR_UNWEAVE = "[" + DATA_WOVEN + "]";
 
 	/**
 	 * Generic destroy handler.
@@ -37,278 +31,239 @@ define([ "require", "jquery", "troopjs-utils/getargs", "./destroy" ], function W
 
 	$.expr[":"][WEAVE] = $.expr.createPseudo
 		? $.expr.createPseudo(function (widgets) {
-		if (widgets !== UNDEFINED) {
-			widgets = RegExp($.map(getargs.call(widgets), function (widget) {
-				return "^" + widget + "$";
-			}).join("|"), "m");
-		}
+			if (widgets !== UNDEFINED) {
+				widgets = RegExp($.map(getargs.call(widgets), function (widget) {
+					return "^" + widget + "$";
+				}).join("|"), "m");
+			}
 
-		return function (element) {
+			return function (element) {
+				var weave = $(element).attr(DATA_WEAVE);
+
+				return weave === UNDEFINED
+					? false
+					: widgets === UNDEFINED
+						? true
+						: widgets.test(weave.split(/[\s,]+/).join("\n"));
+			};
+		})
+		: function (element, index, match) {
 			var weave = $(element).attr(DATA_WEAVE);
 
 			return weave === UNDEFINED
 				? false
-				: widgets === UNDEFINED
+				: match === UNDEFINED
 					? true
-					: widgets.test(weave.split(/[\s,]+/).join("\n"));
+					: RegExp($.map(getargs.call(match[3]), function (widget) {
+				return "^" + widget + "$";
+			}).join("|"), "m").test(weave.split(/[\s,]+/).join("\n"));
 		};
-	})
-		: function (element, index, match) {
-		var weave = $(element).attr(DATA_WEAVE);
-
-		return weave === UNDEFINED
-			? false
-			: match === UNDEFINED
-				? true
-				: RegExp($.map(getargs.call(match[3]), function (widget) {
-			return "^" + widget + "$";
-		}).join("|"), "m").test(weave.split(/[\s,]+/).join("\n"));
-	};
 
 	$.expr[":"][WOVEN] = $.expr.createPseudo
 		? $.expr.createPseudo(function (widgets) {
-		if (widgets !== UNDEFINED) {
-			widgets = RegExp($.map(getargs.call(widgets), function (widget) {
-				return "^" + widget + "@\\d+";
-			}).join("|"), "m");
-		}
+			if (widgets !== UNDEFINED) {
+				widgets = RegExp($.map(getargs.call(widgets), function (widget) {
+					return "^" + widget + "@\\d+";
+				}).join("|"), "m");
+			}
 
-		return function (element) {
+			return function (element) {
+				var woven = $(element).attr(DATA_WOVEN);
+
+				return woven === UNDEFINED
+					? false
+					: widgets === UNDEFINED
+						? true
+						: widgets.test(woven.split(/[\s,]+/).join("\n"));
+			};
+		})
+		: function (element, index, match) {
 			var woven = $(element).attr(DATA_WOVEN);
 
 			return woven === UNDEFINED
 				? false
-				: widgets === UNDEFINED
+				: match === UNDEFINED
 					? true
-					: widgets.test(woven.split(/[\s,]+/).join("\n"));
+					: RegExp($.map(getargs.call(match[3]), function (widget) {
+				return "^" + widget + "@\\d+";
+			}).join("|"), "m").test(woven.split(/[\s,]+/).join("\n"));
 		};
-	})
-		: function (element, index, match) {
-		var woven = $(element).attr(DATA_WOVEN);
 
-		return woven === UNDEFINED
-			? false
-			: match === UNDEFINED
-				? true
-				: RegExp($.map(getargs.call(match[3]), function (widget) {
-			return "^" + widget + "@\\d+";
-		}).join("|"), "m").test(woven.split(/[\s,]+/).join("\n"));
-	};
-
-	$.fn[WEAVE] = function weave(/* arg, arg, arg */) {
-		var widgets = [];
-		var i = 0;
+	/**
+	 * Weaves elements
+	 * @returns {Promise} of weaving
+	 */
+	$.fn[WEAVE] = function weave() {
 		var $elements = $(this);
-		var arg = arguments;
+		var weave_args = ARRAY_SLICE.call(arguments);
+		var woven = [];
+		var wovenLength = 0;
 
+		// Prepare $elements for weaving
 		$elements
 			// Reduce to only elements that can be woven
 			.filter(SELECTOR_WEAVE)
 			// Iterate
-			.each(function elementIterator(index, element) {
-				// Defer weave
-				$DEFERRED(function deferredWeave(dfdWeave) {
-					var $element = $(element);
-					var $data = $element.data();
-					var weave = $data[WEAVE] = $element.attr(DATA_WEAVE) || "";
-					var woven = $data[WOVEN] || ($data[WOVEN] = []);
-					var pending = $data[PENDING] || ($data[PENDING] = []);
+			.each(function (index, element) {
+				var $element = $(element);
+				var $data = $element.data();
+				// Force $data[WEAVE] to be re-initialized from attr
+				var $data_weave = $data[WEAVE] = $element.attr(DATA_WEAVE) || "";
 
-					// Link deferred
-					dfdWeave.done(function doneWeave() {
-						$element
-							// Remove DATA_WEAVING
-							.removeAttr(DATA_WEAVING)
-							// Set DATA_WOVEN with full names
-							.attr(DATA_WOVEN, JOIN.call(arguments, " "));
-					});
+				// Make sure to remove DATA_WEAVE (so we don't try processing this again)
+				$element.removeAttr(DATA_WEAVE);
 
-					// Wait for all pending deferred
-					$WHEN.apply($, pending).then(function donePending() {
-						var re = /[\s,]*([\w_\-\/\.]+)(?:\(([^\)]+)\))?/g;
-						var mark = i;
-						var j = 0;
-						var matches;
+				// When $data[WOVEN] is fulfilled
+				when($data[WOVEN]).then(function () {
+					var re = /[\s,]*([\w_\-\/\.]+)(?:\(([^\)]+)\))?/g;
+					var matches;
+					var widget_args;
+					var widgets = [];
+					var widgetsLength = 0;
+					var i;
+					var iMax;
+					var value;
 
-						// Push dfdWeave on pending to signify we're starting a new task
-						PUSH.call(pending, dfdWeave);
+					// Iterate $data_weave (while RE_WEAVE matches)
+					while ((matches = re.exec($data_weave)) !== NULL) {
+						// Get widget_args
+						widget_args = getargs.call(matches[2]);
 
-						$element
-							// Make sure to remove DATA_WEAVE (so we don't try processing this again)
-							.removeAttr(DATA_WEAVE)
-							// Set DATA_WEAVING (so that unweave can pick this up)
-							.attr(DATA_WEAVING, weave)
-							// Bind destroy event
-							.bind(DESTROY, onDestroy);
+						// Iterate end of widget_args
+						for (i = 0, iMax = widget_args[LENGTH]; i < iMax; i++) {
+							// Get value
+							value = widget_args[i];
 
-						// Iterate woven (while RE_WEAVE matches)
-						while ((matches = re.exec(weave)) !== NULL) {
-							// Defer widget
-							$DEFERRED(function deferredWidget(dfdWidget) {
-								var _j = j++; // store _j before we increment
-								var k;
-								var l;
-								var kMax;
-								var value;
-
-								// Add to widgets
-								widgets[i++] = dfdWidget;
-
-								// Link deferred
-								dfdWidget.then(function doneWidget(widget) {
-									woven[_j] = widget;
-								}, dfdWeave.reject, dfdWeave.notify);
-
-								// Get widget name
-								var name = matches[1];
-
-								// Set initial argv
-								var argv = [ $element, name ];
-
-								// Append values from arg to argv
-								for (k = 0, kMax = arg.length, l = argv.length; k < kMax; k++, l++) {
-									argv[l] = arg[k];
-								}
-
-								// Get widget args
-								var args = matches[2];
-
-								// Any widget arguments
-								if (args !== UNDEFINED) {
-									// Convert args using getargs
-									args = getargs.call(args);
-
-									// Append typed values from args to argv
-									for (k = 0, kMax = args.length, l = argv.length; k < kMax; k++, l++) {
-										// Get value
-										value = args[k];
-
-										// Get value from $data or fall back to pure value
-										argv[l] = value in $data
-											? $data[value]
-											: value;
-									}
-								}
-
-								// Require module
-								parentRequire([ name ], function required(Widget) {
-									// Instantiate widget (with argv)
-									var widget = Widget.apply(Widget, argv);
-
-									// Start widget
-									widget.start().then(function resolve() {
-										dfdWidget.resolve(widget);
-									}, dfdWidget.reject, dfdWidget.notify);
-								});
-							});
+							// Override if value is in $data
+							widget_args[i] = value in $data
+								? $data[value]
+								: value;
 						}
 
-						// Slice out widgets woven for this element
-						$WHEN.apply($, widgets.slice(mark, i)).then(dfdWeave.resolve, dfdWeave.reject, dfdWeave.notify);
+						// Construct and store widget arguments
+						widgets[widgetsLength++] = ARRAY_PROTO.concat($element, matches[1], weave_args, widget_args);
+					}
 
-					}, dfdWeave.reject, dfdWeave.notify);
+					// Add promise to woven and $data[WOVEN]
+					woven[wovenLength++] = $data[WOVEN] = when.map(widgets, function (args) {
+						// Create deferred and resolver
+						var deferred = when.defer();
+						var resolver = deferred.resolver;
+
+						// Require module, add error handler
+						parentRequire([ args[1] ], function (Widget) {
+							var widget;
+
+							try {
+								// Create widget instance
+								widget = Widget.apply(Widget, args);
+
+								// Chain widget.start, resolve deferred with widget instance
+								when.chain(widget.start(), resolver, widget);
+							}
+							catch (e) {
+								// Reject resolver
+								resolver.reject(e);
+							}
+						}, resolver.reject);
+
+						// Return promise
+						return deferred.promise;
+					}).then(function (_widgets) {
+						// Prepare $element for finalizing weave
+						$element
+							// Set DATA_WOVEN with full names
+							.attr(DATA_WOVEN, _widgets.join(" "))
+							// Bind destroy event
+							.on(DESTROY, onDestroy);
+
+						return _widgets;
+					});
 				});
 			});
 
-		// Return compacted combined promise
-		return $DEFERRED(function deferredWeave(dfdWeave) {
-			$WHEN.apply($, widgets).then(function resolve() {
-				dfdWeave.resolve(arguments);
-			}, dfdWeave.reject, dfdWeave.progress);
-		}).promise();
+		// Return promise of all woven
+		return when.all(woven);
 	};
 
+	/**
+	 * Unweaves elements
+	 * @returns {Promise} of unweaving
+	 */
 	$.fn[UNWEAVE] = function unweave() {
-		var widgets = [];
-		var i = 0;
 		var $elements = $(this);
+		var unweave_args = ARRAY_SLICE.call(arguments);
+		var unwoven = [];
+		var unwovenLength = 0;
 
+		// Prepare $elements for unweaving
 		$elements
 			// Reduce to only elements that can be unwoven
 			.filter(SELECTOR_UNWEAVE)
 			// Iterate
-			.each(function elementIterator(index, element) {
-				// Defer unweave
-				$DEFERRED(function deferredUnweave(dfdUnweave) {
-					var $element = $(element);
-					var $data = $element.data();
-					var pending = $data[PENDING] || ($data[PENDING] = []);
-					var woven = $data[WOVEN] || [];
+			.each(function (index, element) {
+				var $element = $(element);
+				var $data = $element.data();
 
-					// Link deferred
-					dfdUnweave.done(function doneUnweave() {
-						$element
-							// Copy weave data to data-weave attribute
-							.attr(DATA_WEAVE, $data[WEAVE])
-							// Make sure to clean the destroy event handler
-							.unbind(DESTROY, onDestroy);
+				// Remove DATA_WOVEN attribute
+				$element.removeAttr(DATA_WOVEN);
 
-						// Remove data fore WEAVE
-						delete $data[WEAVE];
-					});
+				// Add promise to unwoven and $data[WOVEN]
+				unwoven[unwovenLength++] = $data[WOVEN] = when.map($data[WOVEN], function (widget) {
+					// Create deferred
+					var deferred = when.defer();
 
-					// Wait for all pending deferred
-					$WHEN.apply($, pending).done(function donePending() {
-						var mark = i;
-						var widget;
+					// Chain deferred to stop, resolve with widget
+					when.chain(widget.stop.apply(widget, unweave_args), deferred.resolver, widget);
 
-						// Push dfdUnweave on pending to signify we're starting a new task
-						PUSH.call(pending, dfdUnweave);
+					// Return promise
+					return deferred.promise;
+				}).then(function (_widgets) {
+					// Prepare element for unwoven finalization
+					$element
+						// Copy $data[WEAVE] to data-weave attribute
+						.attr(DATA_WEAVE, $data[WEAVE])
+						// Make sure to off the destroy event
+						.off(DESTROY, onDestroy);
 
-						// Remove WOVEN data
-						delete $data[WOVEN];
-
-						$element
-							// Remove DATA_WOVEN attribute
-							.removeAttr(DATA_WOVEN);
-
-						// Somewhat safe(r) iterator over woven
-						while ((widget = woven.shift()) !== UNDEFINED) {
-							// Defer widget
-							$DEFERRED(function deferredWidget(dfdWidget) {
-								// Add to unwoven and pending
-								widgets[i++] = widget.stop().then(function resolve() {
-									dfdWidget.resolve(widget);
-								}, dfdWidget.reject, dfdWidget.notify);
-							});
-						}
-
-						// Slice out widgets unwoven for this element
-						$WHEN.apply($, widgets.slice(mark, i)).then(dfdUnweave.resolve, dfdUnweave.reject, dfdUnweave.notify);
-					});
+					// Return _widgets (that were unwoven)
+					return _widgets;
 				});
 			});
 
-		// Return compacted combined promise
-		return $DEFERRED(function deferredUnweave(dfdUnweave) {
-			$WHEN.apply($, widgets).then(function resolve() {
-				dfdUnweave.resolve(arguments);
-			}, dfdUnweave.reject, dfdUnweave.progress);
-		}).promise();
+		// Return promise of all unwoven
+		return when.all(unwoven);
 	};
 
-	$.fn[WOVEN] = function woven(/* arg, arg */) {
-		var result = [];
-		var widgets = arguments.length > 0
+	/**
+	 * Gets woven widgets
+	 * @returns {Promise} of woven widgets
+	 */
+	$.fn[WOVEN] = function woven() {
+		var woven = [];
+		var wovenLength = 0;
+		var wovenRe = arguments[LENGTH] > 0
 			? RegExp($.map(arguments, function (widget) {
 				return "^" + widget + "$";
 			}).join("|"), "m")
 			: UNDEFINED;
 
-		$(this).each(function elementIterator(index, element) {
-			if (!$.hasData(element)) {
-				return;
-			}
-
-			PUSH.apply(result, widgets === UNDEFINED
+		// Iterate
+		$(this).each(function (index, element) {
+			// Add to woven
+			woven[wovenLength++] = wovenRe === UNDEFINED
+				// If no wovenRe, just the WOVEN promise
 				? $.data(element, WOVEN)
-				: $.map($.data(element, WOVEN), function (woven) {
-					return widgets.test(woven.displayName)
-						? woven
-						: UNDEFINED;
-				}));
+				// Othewise wait for WOVEN to fulfill
+				: when($.data(element, WOVEN), function (widgets) {
+					// Filter widgets using wovenRe
+					return $.grep(widgets, function (widget) {
+						return wovenRe.test(widget.displayName);
+					});
+				});
 		});
 
-		return result;
+		// Return promise of woven
+		return when.all(woven);
 	};
 });
