@@ -1,14 +1,13 @@
-/*!
- * TroopJS jQuery resize plug-in
+/**
+ * TroopJS jquery/resize
+ * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  *
  * Heavy inspiration from https://github.com/cowboy/jquery-resize.git
- *
- * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
- * Released under the MIT license.
  */
-/*jshint strict:false, smarttabs:true */
-/*global define:true */
+/*global define:false */
 define([ "jquery" ], function ResizeModule($) {
+	/*jshint strict:false, smarttabs:true */
+
 	var NULL = null;
 	var RESIZE = "resize";
 	var W = "w";
@@ -55,7 +54,7 @@ define([ "jquery" ], function ResizeModule($) {
 		 *        to the browser’s native event (this is used internally for the
 		 *        beforeunload event, you’ll never use it).
 		 */
-		setup : function hashChangeSetup(data, namespaces, eventHandle) {
+		"setup" : function onResizeSetup(data, namespaces, eventHandle) {
 			var self = this;
 
 			// window has a native resize event, exit fast
@@ -86,7 +85,7 @@ define([ "jquery" ], function ResizeModule($) {
 		 * @param namespaces (Array) An array of namespaces specified when
 		 *        binding the event.
 		 */
-		teardown : function onDimensionsTeardown(namespaces) {
+		"teardown" : function onResizeTeardown(namespaces) {
 			var self = this;
 
 			// window has a native resize event, exit fast

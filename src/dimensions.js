@@ -1,11 +1,11 @@
-/*!
- * TroopJS jQuery dimensions plug-in
- * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
- * Released under the MIT license.
+/**
+ * TroopJS jquery/dimensions
+ * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
-/*jshint strict:false, smarttabs:true */
-/*global define:true */
+/*global define:false */
 define([ "jquery" ], function DimensionsModule($) {
+	/*jshint strict:false, smarttabs:true */
+
 	var NULL = null;
 	var DIMENSIONS = "dimensions";
 	var RESIZE = "resize." + DIMENSIONS;
@@ -26,7 +26,8 @@ define([ "jquery" ], function DimensionsModule($) {
 	 * @param $event
 	 */
 	function onResize($event) {
-		var $self = $(this);
+		var self = this;
+		var $self = $(self);
 		var width = $self.width();
 		var height = $self.height();
 

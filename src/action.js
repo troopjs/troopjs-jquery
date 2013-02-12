@@ -1,11 +1,11 @@
-/*!
- * TroopJS jQuery action plug-in
- * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
- * Released under the MIT license.
+/**
+ * TroopJS jquery/action
+ * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
-/*jshint strict:false, smarttabs:true, laxbreak:true */
-/*global define:true */
+/*global define:false */
 define([ "jquery", "troopjs-utils/getargs" ], function ActionModule($, getargs) {
+	/*jshint strict:false, smarttabs:true, laxbreak:true */
+
 	var UNDEFINED;
 	var FALSE = false;
 	var NULL = null;

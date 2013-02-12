@@ -1,15 +1,14 @@
-/*!
- * TroopJS jQuery hashchange plug-in
+/**
+ * TroopJS jquery/hashchange
+ * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  *
  * Normalized hashchange event, ripped a _lot_ of code from
  * https://github.com/millermedeiros/Hasher
- *
- * @license TroopJS Copyright 2012, Mikael Karon <mikael@karon.se>
- * Released under the MIT license.
  */
-/*jshint strict:false, smarttabs:true, laxbreak:true, evil:true */
-/*global define:true */
+/*global define:false */
 define([ "jquery" ], function HashchangeModule($) {
+	/*jshint strict:false, smarttabs:true, laxbreak:true, evil:true */
+
 	var INTERVAL = "interval";
 	var HASHCHANGE = "hashchange";
 	var ONHASHCHANGE = "on" + HASHCHANGE;
@@ -40,15 +39,15 @@ define([ "jquery" ], function HashchangeModule($) {
 	}
 
 	Frame.prototype = {
-		getElement : function () {
+		"getElement" : function () {
 			return this.element;
 		},
 
-		getHash : function () {
+		"getHash" : function () {
 			return this.element.contentWindow.frameHash;
 		},
 
-		update : function (hash) {
+		"update" : function (hash) {
 			var self = this;
 			var document = self.element.contentWindow.document;
 
@@ -75,7 +74,7 @@ define([ "jquery" ], function HashchangeModule($) {
 		 *        to the browser’s native event (this is used internally for the
 		 *        beforeunload event, you’ll never use it).
 		 */
-		setup : function hashChangeSetup(data, namespaces, eventHandle) {
+		"setup" : function onHashChangeSetup(data, namespaces, eventHandle) {
 			var window = this;
 
 			// Quick return if we support onHashChange natively
@@ -94,7 +93,7 @@ define([ "jquery" ], function HashchangeModule($) {
 			var location = window.location;
 
 			$window.data(INTERVAL, window.setInterval(_isIE
-				? (function hashChangeIntervalWrapper() {
+				? (function () {
 					var document = window.document;
 					var _isLocal = location.protocol === "file:";
 
@@ -102,7 +101,7 @@ define([ "jquery" ], function HashchangeModule($) {
 					document.body.appendChild(frame.getElement());
 					frame.update(hash);
 
-					return function hashChangeInterval() {
+					return function () {
 						var oldHash = hash;
 						var newHash;
 						var windowHash = getHash(window);
@@ -138,7 +137,7 @@ define([ "jquery" ], function HashchangeModule($) {
 						}
 					};
 				})()
-				: function hashChangeInterval() {
+				: function () {
 					var oldHash = hash;
 					var newHash;
 					var windowHash = getHash(window);
@@ -159,7 +158,7 @@ define([ "jquery" ], function HashchangeModule($) {
 		 * @param namespaces (Array) An array of namespaces specified when
 		 *        binding the event.
 		 */
-		teardown : function hashChangeTeardown(namespaces) {
+		"teardown" : function onHashChangeTeardown(namespaces) {
 			var window = this;
 
 			// Quick return if we support onHashChange natively
