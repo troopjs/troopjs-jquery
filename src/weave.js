@@ -4,7 +4,7 @@
  */
 /*global define:false */
 define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], function WeaveModule(parentRequire, $, when, getargs) {
-	/*jshint strict:false, laxbreak:true */
+	/*jshint strict:false, laxbreak:true, newcap:false */
 
 	var UNDEFINED;
 	var NULL = null;
@@ -93,7 +93,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 	 * Weaves elements
 	 * @returns {Promise} of weaving
 	 */
-	$.fn[WEAVE] = function weave() {
+	$.fn[WEAVE] = function () {
 		var $elements = $(this);
 		var weave_args = ARRAY_SLICE.call(arguments);
 		var woven = [];
@@ -117,46 +117,46 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 				when($data[WOVEN]).then(function () {
 					var re = /[\s,]*([\w_\-\/\.]+)(?:\(([^\)]+)\))?/g;
 					var matches;
-					var widget_args;
-					var widgets = [];
-					var widgetsLength = 0;
+					var attr_args;
+					var args = [];
+					var argsLength = 0;
 					var i;
 					var iMax;
 					var value;
 
 					// Iterate $data_weave (while RE_WEAVE matches)
 					while ((matches = re.exec($data_weave)) !== NULL) {
-						// Get widget_args
-						widget_args = getargs.call(matches[2]);
+						// Get attr_args
+						attr_args = getargs.call(matches[2]);
 
-						// Iterate end of widget_args
-						for (i = 0, iMax = widget_args[LENGTH]; i < iMax; i++) {
+						// Iterate end of attr_args
+						for (i = 0, iMax = attr_args[LENGTH]; i < iMax; i++) {
 							// Get value
-							value = widget_args[i];
+							value = attr_args[i];
 
 							// Override if value is in $data
-							widget_args[i] = value in $data
+							attr_args[i] = value in $data
 								? $data[value]
 								: value;
 						}
 
-						// Construct and store widget arguments
-						widgets[widgetsLength++] = ARRAY_PROTO.concat($element, matches[1], weave_args, widget_args);
+						// Construct and store arguments
+						args[argsLength++] = ARRAY_PROTO.concat($element, matches[1], weave_args, attr_args);
 					}
 
 					// Add promise to woven and $data[WOVEN]
-					woven[wovenLength++] = $data[WOVEN] = when.map(widgets, function (args) {
+					woven[wovenLength++] = $data[WOVEN] = when.map(args, function (widget_args) {
 						// Create deferred and resolver
 						var deferred = when.defer();
 						var resolver = deferred.resolver;
 
 						// Require module, add error handler
-						parentRequire([ args[1] ], function (Widget) {
+						parentRequire([ widget_args[1] ], function (Widget) {
 							var widget;
 
 							try {
 								// Create widget instance
-								widget = Widget.apply(Widget, args);
+								widget = Widget.apply(Widget, widget_args);
 
 								// Chain widget.start, resolve deferred with widget instance
 								when.chain(widget.start(), resolver, widget);
@@ -190,7 +190,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 	 * Unweaves elements
 	 * @returns {Promise} of unweaving
 	 */
-	$.fn[UNWEAVE] = function unweave() {
+	$.fn[UNWEAVE] = function () {
 		var $elements = $(this);
 		var unweave_args = ARRAY_SLICE.call(arguments);
 		var unwoven = [];
@@ -239,7 +239,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 	 * Gets woven widgets
 	 * @returns {Promise} of woven widgets
 	 */
-	$.fn[WOVEN] = function woven() {
+	$.fn[WOVEN] = function () {
 		var woven = [];
 		var wovenLength = 0;
 		var wovenRe = arguments[LENGTH] > 0
