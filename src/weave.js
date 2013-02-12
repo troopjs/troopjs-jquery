@@ -141,7 +141,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 						}
 
 						// Construct and store arguments
-						args[argsLength++] = ARRAY_PROTO.concat($element, matches[1], weave_args, attr_args);
+						args[argsLength++] = ARRAY_PROTO.concat($element, matches[1], attr_args);
 					}
 
 					// Add promise to woven and $data[WOVEN]
@@ -159,7 +159,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 								widget = Widget.apply(Widget, widget_args);
 
 								// Chain widget.start, resolve deferred with widget instance
-								when.chain(widget.start(), resolver, widget);
+								when.chain(widget.start.apply(widget, weave_args), resolver, widget);
 							}
 							catch (e) {
 								// Reject resolver
