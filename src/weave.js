@@ -23,7 +23,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	var SELECTOR_UNWEAVE = "[" + DATA_WOVEN + "]";
 	var $FN = $.fn;
 	var $EXPR = $.expr;
-	var $CREATEPSEUDO = $EXPR.createPSeudo;
+	var $CREATEPSEUDO = $EXPR.createPseudo;
 
 	/**
 	 * Generic destroy handler.
