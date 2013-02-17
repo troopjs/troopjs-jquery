@@ -34,34 +34,50 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	}
 
 	/**
+	 * Tests if element has a data-weave attribute
+	 * @param element to test
+	 * @returns {boolean}
+	 * @private
+	 */
+	function hasDataWeaveAttr(element) {
+		return $(element).attr(DATA_WEAVE) !== UNDEFINED;
+	}
+
+	/**
+	 * Tests if element has a data-woven attribute
+	 * @param element to test
+	 * @returns {boolean}
+	 * @private
+	 */
+	function hasDataWovenAttr(element) {
+		return $(element).attr(DATA_WOVEN) !== UNDEFINED;
+	}
+
+	/**
 	 * :weave expression
 	 * @type {*}
 	 */
 	$EXPR[":"][WEAVE] = $CREATEPSEUDO
 		// If we have jQuery >= 1.8 we want to use .createPseudo
 		? $CREATEPSEUDO(function (widgets) {
-			// If have widgets to filter by
-			if (widgets !== UNDEFINED) {
-				// Create regexp from widgets
-				widgets = RegExp(getargs.call(widgets).map(function (widget) {
-					return "^" + widget + "$";
-				}).join("|"), "m");
-
-				// Return result function
-				return function (element) {
-					// Get weave attribute
-					var weave = $(element).attr(DATA_WEAVE);
-
-					// Check that weave is not UNDEFINED, and that widgets test against a processed weave
-					return weave !== UNDEFINED && widgets.test(weave.replace(RE_SEPARATOR, "\n"));
-				};
+			// If we don't have widgets to test, quick return optimized expression
+			if (widgets === UNDEFINED) {
+				return hasDataWeaveAttr;
 			}
-			// Otherwise an optimized version can be used
-			else {
-				return function (element) {
-					return $(element).attr(DATA_WEAVE) !== UNDEFINED;
-				};
-			}
+
+			// Convert widgets to RegExp
+			widgets = RegExp(getargs.call(widgets).map(function (widget) {
+				return "^" + widget + "$";
+			}).join("|"), "m");
+
+			// Return expression
+			return function (element) {
+				// Get weave attribute
+				var weave = $(element).attr(DATA_WEAVE);
+
+				// Check that weave is not UNDEFINED, and that widgets test against a processed weave
+				return weave !== UNDEFINED && widgets.test(weave.replace(RE_SEPARATOR, "\n"));
+			};
 		})
 		// Otherwise fall back to legacy
 		: function (element, index, match) {
@@ -83,29 +99,24 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	$EXPR[":"][WOVEN] = $CREATEPSEUDO
 		// If we have jQuery >= 1.8 we want to use .createPseudo
 		? $CREATEPSEUDO(function (widgets) {
-			// If have widgets to filter by
-			if (widgets !== UNDEFINED) {
-				// Create regexp from widgets
-				widgets = RegExp(getargs.call(widgets).map(function (widget) {
-					return "^" + widget + "@\\d+";
-				}).join("|"), "m");
-
-				// Return result function
-				return function (element) {
-					// Get woven attribute
-					var woven = $(element).attr(DATA_WOVEN);
-
-					// Check that woven is not UNDEFINED, and that widgets test against a processed woven
-					return woven !== UNDEFINED && widgets.test(woven.replace(RE_SEPARATOR, "\n"));
-				};
-			}
-			// Otherwise an optimized version can be used
-			else {
-				return function (element) {
-					return $(element).attr(DATA_WOVEN) !== UNDEFINED;
-				};
+			// If we don't have widgets to test, quick return optimized expression
+			if (widgets === UNDEFINED) {
+				return hasDataWovenAttr;
 			}
 
+			// Convert widgets to RegExp
+			widgets = RegExp(getargs.call(widgets).map(function (widget) {
+				return "^" + widget + "@\\d+";
+			}).join("|"), "m");
+
+			// Return expression
+			return function (element) {
+				// Get woven attribute
+				var woven = $(element).attr(DATA_WOVEN);
+
+				// Check that woven is not UNDEFINED, and that widgets test against a processed woven
+				return woven !== UNDEFINED && widgets.test(woven.replace(RE_SEPARATOR, "\n"));
+			};
 		})
 		// Otherwise fall back to legacy
 		: function (element, index, match) {
