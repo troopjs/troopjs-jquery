@@ -20,6 +20,9 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 	var DATA_WOVEN = DATA + WOVEN;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
 	var SELECTOR_UNWEAVE = "[" + DATA_WOVEN + "]";
+	var $FN = $.fn;
+	var $EXPR = $.expr;
+	var $CREATEPSEUDO = $EXPR.createPSeudo;
 
 	/**
 	 * Generic destroy handler.
@@ -29,8 +32,8 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 		$(this).unweave();
 	}
 
-	$.expr[":"][WEAVE] = $.expr.createPseudo
-		? $.expr.createPseudo(function (widgets) {
+	$EXPR[":"][WEAVE] = $CREATEPSEUDO
+		? $CREATEPSEUDO(function (widgets) {
 			if (widgets !== UNDEFINED) {
 				widgets = RegExp($.map(getargs.call(widgets), function (widget) {
 					return "^" + widget + "$";
@@ -59,8 +62,8 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 			}).join("|"), "m").test(weave.split(/[\s,]+/).join("\n"));
 		};
 
-	$.expr[":"][WOVEN] = $.expr.createPseudo
-		? $.expr.createPseudo(function (widgets) {
+	$EXPR[":"][WOVEN] = $CREATEPSEUDO
+		? $CREATEPSEUDO(function (widgets) {
 			if (widgets !== UNDEFINED) {
 				widgets = RegExp($.map(getargs.call(widgets), function (widget) {
 					return "^" + widget + "@\\d+";
@@ -93,7 +96,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 	 * Weaves elements
 	 * @returns {Promise} of weaving
 	 */
-	$.fn[WEAVE] = function () {
+	$FN[WEAVE] = function () {
 		var $elements = $(this);
 		var weave_args = ARRAY_SLICE.call(arguments);
 		var woven = [];
@@ -190,7 +193,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 	 * Unweaves elements
 	 * @returns {Promise} of unweaving
 	 */
-	$.fn[UNWEAVE] = function () {
+	$FN[UNWEAVE] = function () {
 		var $elements = $(this);
 		var unweave_args = ARRAY_SLICE.call(arguments);
 		var unwoven = [];
@@ -239,7 +242,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 	 * Gets woven widgets
 	 * @returns {Promise} of woven widgets
 	 */
-	$.fn[WOVEN] = function () {
+	$FN[WOVEN] = function () {
 		var woven = [];
 		var wovenLength = 0;
 		var wovenRe = arguments[LENGTH] > 0
