@@ -3,13 +3,14 @@
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
 /*global define:false */
-define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], function WeaveModule(parentRequire, $, when, getargs) {
+define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "poly/array" ], function WeaveModule(parentRequire, $, when, getargs) {
 	/*jshint strict:false, laxbreak:true, newcap:false */
 
 	var UNDEFINED;
 	var NULL = null;
 	var ARRAY_PROTO = Array.prototype;
 	var ARRAY_SLICE = ARRAY_PROTO.slice;
+	var ARRAY_MAP = ARRAY_PROTO.map;
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
@@ -35,7 +36,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 	$EXPR[":"][WEAVE] = $CREATEPSEUDO
 		? $CREATEPSEUDO(function (widgets) {
 			if (widgets !== UNDEFINED) {
-				widgets = RegExp($.map(getargs.call(widgets), function (widget) {
+				widgets = RegExp(getargs.call(widgets).map(function (widget) {
 					return "^" + widget + "$";
 				}).join("|"), "m");
 			}
@@ -57,15 +58,15 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 				? false
 				: match === UNDEFINED
 					? true
-					: RegExp($.map(getargs.call(match[3]), function (widget) {
-				return "^" + widget + "$";
-			}).join("|"), "m").test(weave.split(/[\s,]+/).join("\n"));
-		};
+					: RegExp(getargs.call(match[3]).map(function (widget) {
+							return "^" + widget + "$";
+						}).join("|"), "m").test(weave.split(/[\s,]+/).join("\n"));
+			};
 
 	$EXPR[":"][WOVEN] = $CREATEPSEUDO
 		? $CREATEPSEUDO(function (widgets) {
 			if (widgets !== UNDEFINED) {
-				widgets = RegExp($.map(getargs.call(widgets), function (widget) {
+				widgets = RegExp(getargs.call(widgets).map(function (widget) {
 					return "^" + widget + "@\\d+";
 				}).join("|"), "m");
 			}
@@ -87,9 +88,9 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 				? false
 				: match === UNDEFINED
 					? true
-					: RegExp($.map(getargs.call(match[3]), function (widget) {
-				return "^" + widget + "@\\d+";
-			}).join("|"), "m").test(woven.split(/[\s,]+/).join("\n"));
+					: RegExp(getargs.call(match[3]).map(function (widget) {
+						return "^" + widget + "@\\d+";
+					}).join("|"), "m").test(woven.split(/[\s,]+/).join("\n"));
 		};
 
 	/**
@@ -246,7 +247,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy" ], fu
 		var woven = [];
 		var wovenLength = 0;
 		var wovenRe = arguments[LENGTH] > 0
-			? RegExp($.map(arguments, function (widget) {
+			? RegExp(ARRAY_MAP.call(arguments, function (widget) {
 				return "^" + widget + "$";
 			}).join("|"), "m")
 			: UNDEFINED;
