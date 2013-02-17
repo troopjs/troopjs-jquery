@@ -7,10 +7,12 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	/*jshint strict:false, laxbreak:true, newcap:false */
 
 	var UNDEFINED;
-	var NULL = null;
 	var ARRAY_PROTO = Array.prototype;
 	var ARRAY_SLICE = ARRAY_PROTO.slice;
 	var ARRAY_MAP = ARRAY_PROTO.map;
+	var $FN = $.fn;
+	var $EXPR = $.expr;
+	var $CREATEPSEUDO = $EXPR.createPseudo;
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
@@ -21,9 +23,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	var DATA_WOVEN = DATA + WOVEN;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
 	var SELECTOR_UNWEAVE = "[" + DATA_WOVEN + "]";
-	var $FN = $.fn;
-	var $EXPR = $.expr;
-	var $CREATEPSEUDO = $EXPR.createPseudo;
+	var RE_SEPARATOR = /[\s,]+/;
 
 	/**
 	 * Generic destroy handler.
@@ -33,24 +33,37 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 		$(this).unweave();
 	}
 
+	/**
+	 * :weave expression
+	 * @type {*}
+	 */
 	$EXPR[":"][WEAVE] = $CREATEPSEUDO
+		// If we have jQuery >= 1.8 we want to use .createPseudo
 		? $CREATEPSEUDO(function (widgets) {
+			// If have widgets to filter by
 			if (widgets !== UNDEFINED) {
+				// Create regexp from widgets
 				widgets = RegExp(getargs.call(widgets).map(function (widget) {
 					return "^" + widget + "$";
 				}).join("|"), "m");
+
+				// Return result function
+				return function (element) {
+					// Get weave attribute
+					var weave = $(element).attr(DATA_WEAVE);
+
+					// Check that weave is not UNDEFINED, and that widgets test against a processed weave
+					return weave !== UNDEFINED && widgets.test(weave.replace(RE_SEPARATOR, "\n"));
+				};
 			}
-
-			return function (element) {
-				var weave = $(element).attr(DATA_WEAVE);
-
-				return weave === UNDEFINED
-					? false
-					: widgets === UNDEFINED
-						? true
-						: widgets.test(weave.split(/[\s,]+/).join("\n"));
-			};
+			// Otherwise an optimized version can be used
+			else {
+				return function (element) {
+					return $(element).attr(DATA_WEAVE) !== UNDEFINED;
+				};
+			}
 		})
+		// Otherwise fall back to legacy
 		: function (element, index, match) {
 			var weave = $(element).attr(DATA_WEAVE);
 
@@ -60,27 +73,41 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 					? true
 					: RegExp(getargs.call(match[3]).map(function (widget) {
 							return "^" + widget + "$";
-						}).join("|"), "m").test(weave.split(/[\s,]+/).join("\n"));
+						}).join("|"), "m").test(weave.replace(RE_SEPARATOR, "\n"));
 			};
 
+	/**
+	 * :woven expression
+	 * @type {*}
+	 */
 	$EXPR[":"][WOVEN] = $CREATEPSEUDO
+		// If we have jQuery >= 1.8 we want to use .createPseudo
 		? $CREATEPSEUDO(function (widgets) {
+			// If have widgets to filter by
 			if (widgets !== UNDEFINED) {
+				// Create regexp from widgets
 				widgets = RegExp(getargs.call(widgets).map(function (widget) {
 					return "^" + widget + "@\\d+";
 				}).join("|"), "m");
+
+				// Return result function
+				return function (element) {
+					// Get woven attribute
+					var woven = $(element).attr(DATA_WOVEN);
+
+					// Check that woven is not UNDEFINED, and that widgets test against a processed woven
+					return woven !== UNDEFINED && widgets.test(woven.replace(RE_SEPARATOR, "\n"));
+				};
+			}
+			// Otherwise an optimized version can be used
+			else {
+				return function (element) {
+					return $(element).attr(DATA_WOVEN) !== UNDEFINED;
+				};
 			}
 
-			return function (element) {
-				var woven = $(element).attr(DATA_WOVEN);
-
-				return woven === UNDEFINED
-					? false
-					: widgets === UNDEFINED
-						? true
-						: widgets.test(woven.split(/[\s,]+/).join("\n"));
-			};
 		})
+		// Otherwise fall back to legacy
 		: function (element, index, match) {
 			var woven = $(element).attr(DATA_WOVEN);
 
@@ -90,7 +117,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 					? true
 					: RegExp(getargs.call(match[3]).map(function (widget) {
 						return "^" + widget + "@\\d+";
-					}).join("|"), "m").test(woven.split(/[\s,]+/).join("\n"));
+					}).join("|"), "m").test(woven.replace(RE_SEPARATOR, "\n"));
 		};
 
 	/**
@@ -129,7 +156,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 					var value;
 
 					// Iterate $data_weave (while RE_WEAVE matches)
-					while ((matches = re.exec($data_weave)) !== NULL) {
+					while ((matches = re.exec($data_weave)) !== null) {
 						// Get attr_args
 						attr_args = getargs.call(matches[2]);
 
@@ -261,7 +288,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 				// Othewise wait for WOVEN to fulfill
 				: when($.data(element, WOVEN), function (widgets) {
 					// Filter widgets using wovenRe
-					return $.grep(widgets, function (widget) {
+					return widgets.filter(function (widget) {
 						return wovenRe.test(widget.displayName);
 					});
 				});
