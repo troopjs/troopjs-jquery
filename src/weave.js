@@ -174,15 +174,15 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 						// Return promise
 						return deferred.promise;
 					}).then(function (_widgets) {
-						// Prepare $element for finalizing weave
-						$element
-							// Set DATA_WOVEN with full names
-							.attr(DATA_WOVEN, _widgets.join(" "))
-							// Bind destroy event
-							.on(DESTROY, onDestroy);
+							// Prepare $element for finalizing weave
+							$element
+								// Set DATA_WOVEN with full names
+								.attr(DATA_WOVEN, _widgets.join(" "))
+								// Bind destroy event
+								.on(DESTROY, onDestroy);
 
-						return _widgets;
-					});
+							return _widgets;
+						});
 				});
 			});
 
@@ -223,16 +223,16 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 					// Return promise
 					return deferred.promise;
 				}).then(function (_widgets) {
-					// Prepare element for unwoven finalization
-					$element
-						// Copy $data[WEAVE] to data-weave attribute
-						.attr(DATA_WEAVE, $data[WEAVE])
-						// Make sure to off the destroy event
-						.off(DESTROY, onDestroy);
+						// Prepare element for unwoven finalization
+						$element
+							// Copy $data[WEAVE] to data-weave attribute
+							.attr(DATA_WEAVE, $data[WEAVE])
+							// Make sure to off the destroy event
+							.off(DESTROY, onDestroy);
 
-					// Return _widgets (that were unwoven)
-					return _widgets;
-				});
+						// Return _widgets (that were unwoven)
+						return _widgets;
+					});
 			});
 
 		// Return promise of all unwoven
