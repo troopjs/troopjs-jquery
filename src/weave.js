@@ -259,7 +259,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 				$element.removeAttr(DATA_WOVEN);
 
 				// Add promise to unwoven and $data[WOVEN]
-				unwoven[unwovenLength++] = $data[WOVEN] = when.map($data[WOVEN], function (widget) {
+				unwoven[unwovenLength++] = when.map($data[WOVEN], function (widget) {
 					// Create deferred
 					var deferred = when.defer();
 
@@ -292,10 +292,12 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	$FN[WOVEN] = function () {
 		var woven = [];
 		var wovenLength = 0;
-		var wovenRe;
+		var re;
 
+		// If we have arguments we have convert and filter
 		if (arguments[LENGTH] > 0) {
-			var wovenRe = RegExp($.map(arguments, function (widget) {
+			// Map arguments to a regexp
+			re = RegExp(ARRAY_MAP.call(arguments, function (widget) {
 				return "^" + widget + "$";
 			}).join("|"), "m");
 
@@ -303,13 +305,14 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 			$(this).each(function (index, element) {
 				// Add promise of widgets to woven
 				woven[wovenLength++] = when.all($.data(element, WIDGETS), function (widgets) {
-					// Filter widgets using wovenRe
+					// Filter widgets using re
 					return widgets.filter(function (widget) {
-						return wovenRe.test(widget.displayName);
+						return re.test(widget.displayName);
 					});
 				});
 			});
 		}
+		// Otherwise we can use a faster approach
 		else {
 			// Iterate
 			$(this).each(function (index, element) {
