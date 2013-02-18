@@ -7,7 +7,9 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	/*jshint strict:false, laxbreak:true, newcap:false */
 
 	var UNDEFINED;
+	var NULL = null;
 	var ARRAY_PROTO = Array.prototype;
+	var ARRAY_PUSH = ARRAY_PROTO.push;
 	var ARRAY_SLICE = ARRAY_PROTO.slice;
 	var ARRAY_MAP = ARRAY_PROTO.map;
 	var $FN = $.fn;
@@ -16,6 +18,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
+	var WIDGETS = "widgets";
 	var DESTROY = "destroy";
 	var LENGTH = "length";
 	var DATA = "data-";
@@ -133,7 +136,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 
 	/**
 	 * Weaves elements
-	 * @returns {Promise} of weaving
+	 * @returns {Promise} fulfilled when all elements are woven
 	 */
 	$FN[WEAVE] = function () {
 		var $elements = $(this);
@@ -149,79 +152,84 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 			.each(function (index, element) {
 				var $element = $(element);
 				var $data = $element.data();
-				// Force $data[WEAVE] to be re-initialized from attr
-				var $data_weave = $data[WEAVE] = $element.attr(DATA_WEAVE) || "";
+				var $weave = $element.attr(DATA_WEAVE) || "";
+				var $widgets = $data[WIDGETS] || ($data[WIDGETS] = []);
+				var $woven = [];
+				var $wovenLength = 0;
+				var re = /[\s,]*([\w_\-\/\.]+)(?:\(([^\)]+)\))?/g;
+				var matches;
+				var attr_args;
+				var i;
+				var iMax;
+				var value;
 
 				// Make sure to remove DATA_WEAVE (so we don't try processing this again)
 				$element.removeAttr(DATA_WEAVE);
 
-				// When $data[WOVEN] is fulfilled
-				when($data[WOVEN]).then(function () {
-					var re = /[\s,]*([\w_\-\/\.]+)(?:\(([^\)]+)\))?/g;
-					var matches;
-					var attr_args;
-					var args = [];
-					var argsLength = 0;
-					var i;
-					var iMax;
-					var value;
+				// Iterate $weave (while re matches)
+				while ((matches = re.exec($weave)) !== NULL) {
+					// Get attr_args
+					attr_args = getargs.call(matches[2]);
 
-					// Iterate $data_weave (while RE_WEAVE matches)
-					while ((matches = re.exec($data_weave)) !== null) {
-						// Get attr_args
-						attr_args = getargs.call(matches[2]);
+					// Iterate end of attr_args
+					for (i = 0, iMax = attr_args[LENGTH]; i < iMax; i++) {
+						// Get value
+						value = attr_args[i];
 
-						// Iterate end of attr_args
-						for (i = 0, iMax = attr_args[LENGTH]; i < iMax; i++) {
-							// Get value
-							value = attr_args[i];
-
-							// Override if value is in $data
-							attr_args[i] = value in $data
-								? $data[value]
-								: value;
-						}
-
-						// Construct and store arguments
-						args[argsLength++] = ARRAY_PROTO.concat($element, matches[1], attr_args);
+						// Override if value is in $data
+						attr_args[i] = value in $data
+							? $data[value]
+							: value;
 					}
 
-					// Add promise to woven and $data[WOVEN]
-					woven[wovenLength++] = $data[WOVEN] = when.map(args, function (widget_args) {
-						// Create deferred and resolver
-						var deferred = when.defer();
-						var resolver = deferred.resolver;
+					// Store $woven arguments
+					$woven[$wovenLength++] = ARRAY_PROTO.concat($element, matches[1], attr_args);
+				}
 
-						// Require module, add error handler
-						parentRequire([ widget_args[1] ], function (Widget) {
-							var widget;
+				// Transform each $woven value to a promise of a woven widgets
+				$woven.forEach(function (widget_args, widget_index) {
+					// Create deferred and resolver
+					var deferred = when.defer();
+					var resolver = deferred.resolver;
 
-							try {
-								// Create widget instance
-								widget = Widget.apply(Widget, widget_args);
+					// Require module - with error handler
+					parentRequire([ widget_args[1] ], function (Widget) {
+						var widget;
 
-								// Chain widget.start, resolve deferred with widget instance
-								when.chain(widget.start.apply(widget, weave_args), resolver, widget);
-							}
-							catch (e) {
-								// Reject resolver
-								resolver.reject(e);
-							}
-						}, resolver.reject);
+						try {
+							// Create widget instance
+							widget = Widget.apply(Widget, widget_args);
 
-						// Return promise
-						return deferred.promise;
-					}).then(function (_widgets) {
-							// Prepare $element for finalizing weave
-							$element
-								// Set DATA_WOVEN with full names
-								.attr(DATA_WOVEN, _widgets.join(" "))
-								// Bind destroy event
-								.on(DESTROY, onDestroy);
+							// Chain widget.start, resolve deferred with widget instance
+							when.chain(widget.start.apply(widget, weave_args), resolver, widget);
+						}
+						catch (e) {
+							// Reject resolver
+							resolver.reject(e);
+						}
+					}, resolver.reject);
 
-							return _widgets;
-						});
+					// Update $woven[index]
+					$woven[widget_index] = deferred.promise;
 				});
+
+				// Push all $woven onto $widgets
+				ARRAY_PUSH.apply($widgets, $woven);
+
+				// When all $widgets are fulfilled
+				when.all($widgets, function (widgets) {
+					// Prepare $element for finalizing weave
+					$element
+						// Set DATA_WOVEN with full names
+						.attr(DATA_WOVEN, widgets.join(" "))
+						// Bind destroy event
+						.on(DESTROY, onDestroy);
+
+					return widgets;
+				});
+
+				// Add promise for all $woven to woven
+				woven[wovenLength++] = when.all($woven);
 			});
 
 		// Return promise of all woven
@@ -284,26 +292,31 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	$FN[WOVEN] = function () {
 		var woven = [];
 		var wovenLength = 0;
-		var wovenRe = arguments[LENGTH] > 0
-			? RegExp(ARRAY_MAP.call(arguments, function (widget) {
-				return "^" + widget + "$";
-			}).join("|"), "m")
-			: UNDEFINED;
+		var wovenRe;
 
-		// Iterate
-		$(this).each(function (index, element) {
-			// Add to woven
-			woven[wovenLength++] = wovenRe === UNDEFINED
-				// If no wovenRe, just the WOVEN promise
-				? $.data(element, WOVEN)
-				// Othewise wait for WOVEN to fulfill
-				: when($.data(element, WOVEN), function (widgets) {
+		if (arguments[LENGTH] > 0) {
+			var wovenRe = RegExp($.map(arguments, function (widget) {
+				return "^" + widget + "$";
+			}).join("|"), "m");
+
+			// Iterate
+			$(this).each(function (index, element) {
+				// Add promise of widgets to woven
+				woven[wovenLength++] = when.all($.data(element, WIDGETS), function (widgets) {
 					// Filter widgets using wovenRe
 					return widgets.filter(function (widget) {
 						return wovenRe.test(widget.displayName);
 					});
 				});
-		});
+			});
+		}
+		else {
+			// Iterate
+			$(this).each(function (index, element) {
+				// Add promise of widgets to woven
+				woven[wovenLength++] = when.all($.data(element, WIDGETS));
+			});
+		}
 
 		// Return promise of woven
 		return when.all(woven);
