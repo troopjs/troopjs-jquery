@@ -10,6 +10,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 	var ARRAY_PROTO = Array.prototype;
 	var ARRAY_SLICE = ARRAY_PROTO.slice;
 	var ARRAY_MAP = ARRAY_PROTO.map;
+	var ARRAY_PUSH = ARRAY_PROTO.push;
 	var $FN = $.fn;
 	var $EXPR = $.expr;
 	var $CREATEPSEUDO = $EXPR.createPseudo;
@@ -156,72 +157,79 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "./destroy", "pol
 				$element.removeAttr(DATA_WEAVE);
 
 				// When $data[WOVEN] is fulfilled
-				when($data[WOVEN]).then(function () {
-					var re = /[\s,]*([\w_\-\/\.]+)(?:\(([^\)]+)\))?/g;
-					var matches;
-					var attr_args;
-					var args = [];
-					var argsLength = 0;
-					var i;
-					var iMax;
-					var value;
+				var re = /[\s,]*([\w_\-\/\.]+)(?:\(([^\)]+)\))?/g;
+				var matches;
+				var attr_args;
+				var args = [];
+				var argsLength = 0;
+				var i;
+				var iMax;
+				var value;
 
-					// Iterate $data_weave (while RE_WEAVE matches)
-					while ((matches = re.exec($data_weave)) !== null) {
-						// Get attr_args
-						attr_args = getargs.call(matches[2]);
+				// Iterate $weave (while re matches)
+				// matches[0] : original matching string - " widget/name(1, 'string', false)"
+				// matches[2] : widget name - "widget/name"
+				// matches[3] : widget args - "1, 'string', false"
+				while ((matches = re.exec($data_weave)) !== null) {
+					// Create attr_args
+					attr_args = [ $element, matches[1] ];
 
-						// Iterate end of attr_args
-						for (i = 0, iMax = attr_args[LENGTH]; i < iMax; i++) {
-							// Get value
-							value = attr_args[i];
+					// Store matches[1] as WEAVE on attr_args
+					attr_args[WEAVE] = matches[0];
 
-							// Override if value is in $data
-							attr_args[i] = value in $data
-								? $data[value]
-								: value;
-						}
+					// Transfer arguments from getargs
+					ARRAY_PUSH.apply(attr_args, getargs.call(matches[2]));
 
-						// Construct and store arguments
-						args[argsLength++] = ARRAY_PROTO.concat($element, matches[1], attr_args);
+					// Iterate end of attr_args to copy from $data
+					for (i = 2, iMax = attr_args[LENGTH]; i < iMax; i++) {
+						// Get value
+						value = attr_args[i];
+
+						// Override if value is in $data
+						attr_args[i] = value in $data
+							? $data[value]
+							: value;
 					}
 
-					// Add promise to woven and $data[WOVEN]
-					woven[wovenLength++] = $data[WOVEN] = when.map(args, function (widget_args) {
-						// Create deferred and resolver
-						var deferred = when.defer();
-						var resolver = deferred.resolver;
+					// Store $woven arguments
+					args[argsLength++] = attr_args;
+				}
 
-						// Require module, add error handler
-						parentRequire([ widget_args[1] ], function (Widget) {
-							var widget;
+				// Add promise to woven and $data[WOVEN]
+				woven[wovenLength++] = $data[WOVEN] = when.map(args, function (widget_args) {
+					// Create deferred and resolver
+					var deferred = when.defer();
+					var resolver = deferred.resolver;
 
-							try {
-								// Create widget instance
-								widget = Widget.apply(Widget, widget_args);
+					// Require module, add error handler
+					parentRequire([ widget_args[1] ], function (Widget) {
+						var widget;
 
-								// Chain widget.start, resolve deferred with widget instance
-								when.chain(widget.start.apply(widget, weave_args), resolver, widget);
-							}
-							catch (e) {
-								// Reject resolver
-								resolver.reject(e);
-							}
-						}, resolver.reject);
+						try {
+							// Create widget instance
+							widget = Widget.apply(Widget, widget_args);
 
-						// Return promise
-						return deferred.promise;
-					}).then(function (_widgets) {
-							// Prepare $element for finalizing weave
-							$element
-								// Set DATA_WOVEN with full names
-								.attr(DATA_WOVEN, _widgets.join(" "))
-								// Bind destroy event
-								.on(DESTROY, onDestroy);
+							// Chain widget.start, resolve deferred with widget instance
+							when.chain(widget.start.apply(widget, weave_args), resolver, widget);
+						}
+						catch (e) {
+							// Reject resolver
+							resolver.reject(e);
+						}
+					}, resolver.reject);
 
-							return _widgets;
-						});
-				});
+					// Return promise
+					return deferred.promise;
+				}).then(function (_widgets) {
+						// Prepare $element for finalizing weave
+						$element
+							// Set DATA_WOVEN with full names
+							.attr(DATA_WOVEN, _widgets.join(" "))
+							// Bind destroy event
+							.on(DESTROY, onDestroy);
+
+						return _widgets;
+					});
 			});
 
 		// Return promise of all woven
