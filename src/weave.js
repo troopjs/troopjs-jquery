@@ -358,7 +358,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 		if (arguments[LENGTH] > 0) {
 			// Map arguments to a regexp
 			re = RegExp(ARRAY_MAP.call(arguments, function (widget) {
-				return "^" + widget + "$";
+				return "^" + widget + "(?:\\\([^\\\)]*\\\))?$";
 			}).join("|"), "m");
 
 			// Iterate
