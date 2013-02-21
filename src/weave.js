@@ -17,7 +17,6 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
-	var DESTROY = "destroy";
 	var LENGTH = "length";
 	var DATA = "data-";
 	var DATA_WEAVE = DATA + WEAVE;
@@ -147,7 +146,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 			// Reduce to only elements that can be woven
 			.filter(SELECTOR_WEAVE)
 			// Attach onDestroy event
-			.on(DESTROY, onDestroy)
+			.on("destroy.singleton", onDestroy)
 			// Iterate
 			.each(function (index, element) {
 				var $element = $(element);
