@@ -363,13 +363,13 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 
 			// Iterate
 			$(this).each(function (index, element) {
-				// Add promise of widgets to woven
-				woven[wovenLength++] = when.all($.data(element, WIDGETS), function (widgets) {
-					// Filter widgets using re
-					return widgets.filter(function (widget) {
-						return re.test(widget.displayName);
-					});
+				// Filter widget promises
+				var $widgets = ($.data(element, WIDGETS) || []).filter(function ($widget) {
+					return re.test($widget[WEAVE]);
 				});
+
+				// Add promise of widgets to woven
+				woven[wovenLength++] = when.all($widgets);
 			});
 		}
 		// Otherwise we can use a faster approach
