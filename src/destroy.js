@@ -8,15 +8,11 @@ define([ "jquery" ], function DestroyModule($) {
 
 	var DESTROY = "destroy";
 
-	$.event.special.destroy = {
+	$.event.special[DESTROY] = {
 		"add" : function onDestroyAdd(handleObj) {
-			var $events;
-
-			// Prevent adding more than one destroy event handler if the namespace is "singleton"
-			return !(handleObj.namespace === "singleton"
-				&& ($events = $._data(this, "events"))
-				&& DESTROY in $events
-				&& $events[DESTROY].length > 0);
+			return $.grep($._data(this, "events")[DESTROY], function (_handleObj) {
+				return handleObj.guid === _handleObj.guid;
+			}).length > 0;
 		},
 
 		"remove" : function onDestroyRemove(handleObj) {
