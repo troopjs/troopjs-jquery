@@ -178,8 +178,10 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 					// Store trimmed matches[0] as WEAVE on attr_args
 					attr_args[WEAVE] = matches[0].trim();
 
-					// Transfer arguments from getargs
-					ARRAY_PUSH.apply(attr_args, getargs.call(matches[2]));
+					// Transfer arguments from getargs (if any exist)
+					if (matches[2]) {
+						ARRAY_PUSH.apply(attr_args, getargs.call(matches[2]));
+					}
 
 					// Iterate end of attr_args to copy from $data
 					for (i = 2, iMax = attr_args[LENGTH]; i < iMax; i++) {
