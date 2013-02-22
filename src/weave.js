@@ -21,6 +21,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 	var DATA = "data-";
 	var DATA_WEAVE = DATA + WEAVE;
 	var DATA_WOVEN = DATA + WOVEN;
+	var DATA_UNWEAVE = DATA + UNWEAVE;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
 	var SELECTOR_UNWEAVE = "[" + DATA_WOVEN + "]";
 	var RE_SEPARATOR = /[\s,]+/;
@@ -215,6 +216,9 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 							// Create widget instance
 							widget = Widget.apply(Widget, widget_args);
 
+							// Add WOVEN to promise
+							promise[WOVEN] = widget.toString();
+
 							// Chain widget.start, resolve deferred with widget instance
 							when.chain(widget.start.apply(widget, weave_args), resolver, widget);
 						}
@@ -276,28 +280,59 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 				var $widgets = $data[WIDGETS] || ($data[WIDGETS] = []);
 				var $unwoven = [];
 				var $unwovenLength = 0;
+				var attr_unweave = $element.attr(DATA_UNWEAVE);
+				var i;
+				var iMax;
+				var re;
 
-				// Filter $widgets (for future)
-				filter.call($widgets, function ($widget) {
-					// Copy $widget
-					$unwoven[$unwovenLength++] = $widget;
+				// Remove DATA_UNWEAVE attribute
+				$element.removeAttr(DATA_UNWEAVE);
 
-					return false;
-				});
+				// If we have attr_unweave, we need to filter
+				if (attr_unweave) {
+					// Create regexp to match widgets
+					re = RegExp(attr_unweave.split(RE_SEPARATOR).map(function (widget) {
+						return "^" + widget;
+					}).join("|"), "m");
 
-				// When all $widgets are fulfilled
-				when.all($widgets, function (widgets) {
-					// Either set or remove DATA_WOVEN argument
-					if (widgets[LENGTH] !== 0) {
-						$element.attr(DATA_WOVEN, widgets.join(" "));
+					// Filter $widgets
+					filter.call($widgets, function ($widget) {
+						var filtered = re.test($widget[WOVEN]);
+
+						if (filtered) {
+							$unwoven[$unwovenLength++] = $widget;
+						}
+
+						return !filtered;
+					});
+
+					// When all $widgets are fulfilled
+					when.all($widgets, function (widgets) {
+						// Either set or remove DATA_WOVEN argument
+						if (widgets[LENGTH] !== 0) {
+							$element.attr(DATA_WOVEN, widgets.join(" "));
+						}
+						else {
+							$element.removeAttr(DATA_WOVEN)
+						}
+
+						// Return widgets
+						return widgets;
+					});
+				}
+				// Otherwise unweave all widgets
+				else {
+					// Copy from $widgets to $unwoven
+					for (i = 0, iMax = $widgets[LENGTH]; i < iMax; i++) {
+						$unwoven[$unwovenLength++] = $widgets[i];
 					}
-					else {
-						$element.removeAttr(DATA_WOVEN)
-					}
 
-					// Return widgets
-					return widgets;
-				});
+					// Truncate $widgets
+					$widgets[LENGTH] = 0;
+
+					// Remove DATA_WOVEN attribute
+					$element.removeAttr(DATA_WOVEN);
+				}
 
 				// Iterate $unwoven
 				$unwoven.forEach(function ($widget, $unwovenIndex) {
