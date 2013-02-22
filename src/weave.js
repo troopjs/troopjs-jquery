@@ -68,7 +68,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 
 			// Convert widgets to RegExp
 			widgets = RegExp(getargs.call(widgets).map(function (widget) {
-				return "^" + widget + "$";
+				return "^" + widget;
 			}).join("|"), "m");
 
 			// Return expression
@@ -89,7 +89,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 				: match === UNDEFINED
 					? true
 					: RegExp(getargs.call(match[3]).map(function (widget) {
-							return "^" + widget + "$";
+							return "^" + widget;
 						}).join("|"), "m").test(weave.replace(RE_SEPARATOR, "\n"));
 			};
 
@@ -107,7 +107,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 
 			// Convert widgets to RegExp
 			widgets = RegExp(getargs.call(widgets).map(function (widget) {
-				return "^" + widget + "@\\d+";
+				return "^" + widget;
 			}).join("|"), "m");
 
 			// Return expression
@@ -128,7 +128,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 				: match === UNDEFINED
 					? true
 					: RegExp(getargs.call(match[3]).map(function (widget) {
-						return "^" + widget + "@\\d+";
+						return "^" + widget;
 					}).join("|"), "m").test(woven.replace(RE_SEPARATOR, "\n"));
 		};
 
@@ -392,14 +392,14 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 		if (arguments[LENGTH] > 0) {
 			// Map arguments to a regexp
 			re = RegExp(ARRAY_MAP.call(arguments, function (widget) {
-				return "^" + widget + "(?:\\\([^\\\)]*\\\))?$";
+				return "^" + widget;
 			}).join("|"), "m");
 
 			// Iterate
 			$(this).each(function (index, element) {
 				// Filter widget promises
 				var $widgets = ($.data(element, WIDGETS) || []).filter(function ($widget) {
-					return re.test($widget[WEAVE]);
+					return re.test($widget[WOVEN]);
 				});
 
 				// Add promise of widgets to woven
