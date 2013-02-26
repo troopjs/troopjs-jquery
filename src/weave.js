@@ -219,8 +219,8 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 							// Add WOVEN to promise
 							promise[WOVEN] = widget.toString();
 
-							// Chain widget.start, resolve deferred with widget instance
-							when.chain(widget.start.apply(widget, weave_args), resolver, widget);
+							// Resolve with start yielding widget
+							resolver.resolve(widget.start.apply(widget, weave_args).yield(widget))
 						}
 						catch (e) {
 							// Reject resolver
