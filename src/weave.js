@@ -250,6 +250,9 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 						$element.removeAttr(DATA_WOVEN);
 					}
 
+					// Trigger event on $element indicating widget(s) were woven
+					$element.triggerHandler(WEAVE, widgets);
+
 					// Return widgets
 					return widgets;
 				});
@@ -369,6 +372,9 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 					else {
 						$element.removeAttr(DATA_WEAVE);
 					}
+
+					// Trigger event on $element indicating widget(s) were unwoven
+					$element.triggerHandler(UNWEAVE, widgets);
 
 					// Return widgets
 					return widgets;
