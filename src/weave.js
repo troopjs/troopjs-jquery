@@ -4,7 +4,7 @@
  */
 /*global define:false */
 define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/filter", "./destroy", "poly/array", "poly/string" ], function WeaveModule(parentRequire, $, when, getargs, filter) {
-	/*jshint strict:false, laxbreak:true, newcap:false */
+	/*jshint strict:false, laxbreak:true, newcap:false, es5:true */
 
 	var UNDEFINED;
 	var ARRAY_PROTO = Array.prototype;
@@ -220,7 +220,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 							promise[WOVEN] = widget.toString();
 
 							// Resolve with start yielding widget
-							resolver.resolve(widget.start.apply(widget, weave_args).yield(widget))
+							resolver.resolve(widget.start.apply(widget, weave_args).yield(widget));
 						}
 						catch (e) {
 							// Reject resolver
@@ -240,7 +240,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 						: [ attr_woven ];
 
 					// Push orinal weave
-					ARRAY_PUSH.apply(attr_woven, widgets.map(function (widget) { return widget.toString() }));
+					ARRAY_PUSH.apply(attr_woven, widgets.map(function (widget) { return widget.toString(); }));
 
 					// Either set or remove DATA_WOVEN attribute
 					if (attr_woven[LENGTH] !== 0) {
@@ -313,7 +313,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 							$element.attr(DATA_WOVEN, widgets.join(" "));
 						}
 						else {
-							$element.removeAttr(DATA_WOVEN)
+							$element.removeAttr(DATA_WOVEN);
 						}
 
 						// Return widgets
