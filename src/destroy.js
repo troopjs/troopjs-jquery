@@ -9,21 +9,23 @@ define([ "jquery" ], function DestroyModule($) {
 	var DESTROY = "destroy";
 
 	$.event.special[DESTROY] = {
-		"add" : function onDestroyAdd(handleObj) {
-			return $.grep($._data(this, "events")[DESTROY], function (_handleObj) {
-				return handleObj.guid === _handleObj.guid;
-			}).length > 0;
+		"noBubble" : true,
+
+		"trigger" : function () {
+			return false;
 		},
 
 		"remove" : function onDestroyRemove(handleObj) {
 			var self = this;
 
-			handleObj.handler.call(self, $.Event({
-				"type" : handleObj.type,
-				"data" : handleObj.data,
-				"namespace" : handleObj.namespace,
-				"target" : self
-			}));
+			if (handleObj) {
+				handleObj.handler.call(self, $.Event({
+					"type" : handleObj.type,
+					"data" : handleObj.data,
+					"namespace" : handleObj.namespace,
+					"target" : self
+				}));
+			}
 		}
 	};
 });

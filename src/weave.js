@@ -17,6 +17,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 	var WEAVE = "weave";
 	var UNWEAVE = "unweave";
 	var WOVEN = "woven";
+	var DESTROY = "destroy";
 	var LENGTH = "length";
 	var DATA = "data-";
 	var DATA_WEAVE = DATA + WEAVE;
@@ -146,8 +147,23 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 		$elements
 			// Reduce to only elements that can be woven
 			.filter(SELECTOR_WEAVE)
-			// Attach onDestroy event
-			.on("destroy", onDestroy)
+				// Reduce to only elements that don't have a the destroy handler attached
+				.filter(function () {
+					// Get events
+					var events = $._data(this, "events");
+
+					// Check if we can find the onDestroy event handler in events
+					var found = events && $.grep(events[DESTROY] || false, function (handleObj) {
+						return handleObj.handler === onDestroy;
+					}).length > 0;
+
+					// Return true if not found, false if we did
+					return !found;
+				})
+				// Attach onDestroy event
+				.on(DESTROY, onDestroy)
+				// Back to previous filtering
+				.end()
 			// Iterate
 			.each(function (index, element) {
 				var $element = $(element);
