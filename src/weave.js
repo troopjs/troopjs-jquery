@@ -219,7 +219,7 @@ define([ "require", "jquery", "when", "troopjs-utils/getargs", "troopjs-utils/fi
 					// Create deferred and resolver
 					var deferred = when.defer();
 					var resolver = deferred.resolver;
-					var promise = $widgets[$widgetsLength] = $woven[$wovenIndex] = deferred.promise;
+					var promise = $widgets[$widgetsLength++] = $woven[$wovenIndex] = deferred.promise;
 
 					// Copy WEAVE
 					promise[WEAVE] = widget_args[WEAVE];
