@@ -5,7 +5,7 @@
  */
 /*jshint strict:false, smarttabs:true, laxbreak:true, loopfunc:true */
 /*global define:true */
-define([ "jquery", "troopjs-utils/getargs", "require" ], function WeaveModule($, getargs, parentRequire) {
+define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function WeaveModule($, getargs, parentRequire) {
 	var UNDEFINED;
 	var FUNCTION = Function;
 	var ARRAY_PROTO = Array.prototype;
