@@ -136,10 +136,6 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 						// Create deferredStart
 						var deferredStart = $.Deferred();
 
-						var start_args = [ deferredStart ];
-
-						ARRAY_PUSH.apply(start_args, weave_args);
-
 						// Link deferredWeave and deferredStart
 						deferredStart.then(function started() {
 							deferredWeave.resolve(widget);
@@ -153,7 +149,7 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 							promise[WOVEN] = widget.toString();
 
 							// Start
-							widget.start.apply(widget, start_args);
+							widget.start(deferredStart);
 						}
 						catch (e) {
 							// Reject deferredStart
@@ -293,10 +289,6 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 						// Create deferredStop
 						var deferredStop = $.Deferred();
 
-						var stop_args = [ deferredStop ];
-
-						ARRAY_PUSH.apply(stop_args, unweave_args);
-
 						// Link deferredUnweave and deferredStop
 						deferredStop.then(function stopped() {
 							deferredUnweave.resolve(widget);
@@ -304,7 +296,7 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 
 						try {
 							// Stop
-							widget.stop.apply(widget, stop_args);
+							widget.stop(deferredStop);
 						}
 						catch (e) {
 							// Reject deferredStart
