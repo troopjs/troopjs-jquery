@@ -23,8 +23,10 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 	var DATA = "data-";
 	var DATA_WEAVE = DATA + WEAVE;
 	var DATA_WOVEN = DATA + WOVEN;
+	var DATA_UNWEAVE = DATA + UNWEAVE;
 	var SELECTOR_WEAVE = "[" + DATA_WEAVE + "]";
 	var SELECTOR_UNWEAVE = "[" + DATA_WOVEN + "]";
+	var RE_SEPARATOR = /[\s,]+/;
 
 	/**
 	 * Generic destroy handler.
@@ -216,31 +218,77 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 			.each(function elementIterator(index, element) {
 				var $element = $(element);
 				var $data = $element.data();
+				var $widget;
 				var $widgets = $data[WIDGETS] || ($data[WIDGETS] = []);
 				var $unwoven = [];
 				var $unwovenLength = 0;
+				var attr_unweave = $element.attr(DATA_UNWEAVE);
 				var i;
+				var j;
 				var iMax;
+				var re;
 
-				// Copy from $widgets to $unwoven
-				for (i = 0, iMax = $widgets[LENGTH]; i < iMax; i++) {
-					$unwoven[$unwovenLength++] = $widgets[i];
+				// Remove DATA_UNWEAVE attribute
+				$element.removeAttr(DATA_UNWEAVE);
+
+				// If we have attr_unweave, we need to filter
+				if (attr_unweave) {
+					// Create regexp to match widgets
+					re = RegExp($.map(attr_unweave.split(RE_SEPARATOR), function (widget) {
+						return "^" + widget;
+					}).join("|"), "m");
+
+					for (i = j = 0, iMax = $widgets[LENGTH]; i < iMax; i++) {
+						$widget = $widgets[i];
+
+						if (re.test($widget[WOVEN])) {
+							$unwoven[$unwovenLength++] = $widget;
+							continue;
+						}
+
+						$widgets[j++] = $widget;
+					}
+
+					$widgets[LENGTH] = $data[WOVEN][LENGTH] = j;
+
+					// When all $widgets are fulfilled
+					$WHEN.apply($, $widgets).then(function () {
+						var widgets = ARRAY_SLICE.call(arguments);
+
+						// Either set or remove DATA_WOVEN argument
+						if (widgets[LENGTH] !== 0) {
+							$element.attr(DATA_WOVEN, widgets.join(" "));
+						}
+						else {
+							$element.removeAttr(DATA_WOVEN);
+						}
+					});
 				}
+				else {
+					// Copy from $widgets to $unwoven
+					for (i = 0, iMax = $widgets[LENGTH]; i < iMax; i++) {
+						$unwoven[$unwovenLength++] = $widgets[i];
+					}
 
-				// Truncate $widgets and $data[WOVEN]
-				$widgets[LENGTH] = $data[WOVEN][LENGTH] = 0;
+					// Truncate $widgets and $data[WOVEN]
+					$widgets[LENGTH] = $data[WOVEN][LENGTH] = 0;
 
-				// Remove DATA_WOVEN attribute
-				$element.removeAttr(DATA_WOVEN);
+					// Remove DATA_WOVEN attribute
+					$element.removeAttr(DATA_WOVEN);
+				}
 
 				// Iterate $unwoven
 				$.each($unwoven, function ($unwovenIndex, $widget) {
+					// Create deferredUnweave
 					var deferredUnweave = $.Deferred();
+
+					// Extract promise
 					var promise = $unwoven[$unwovenIndex] = deferredUnweave.promise();
 
 					// Copy WEAVE
 					promise[WEAVE] = $widget[WEAVE];
 
+					// Wait for $widget to complete
 					$widget.then(function (widget) {
 						// Create deferredStop
 						var deferredStop = $.Deferred();
