@@ -96,7 +96,7 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 					attr_args = [ $element, matches[1] ];
 
 					// Store trimmed matches[0] as WEAVE on attr_args
-					attr_args[WEAVE] = matches[0].trim();
+					attr_args[WEAVE] = $.trim(matches[0]);
 
 					// Transfer arguments from getargs (if any exist)
 					if (matches[2]) {
