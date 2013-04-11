@@ -216,6 +216,7 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 				var $data = $element.data();
 				var $widget;
 				var $widgets = $data[WIDGETS] || ($data[WIDGETS] = []);
+                		var $woven = $data[WOVEN] || ($data[WOVEN] = []);
 				var $unwoven = [];
 				var $unwovenLength = 0;
 				var attr_unweave = $element.attr(DATA_UNWEAVE);
@@ -245,7 +246,7 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 						$widgets[j++] = $widget;
 					}
 
-					$widgets[LENGTH] = $data[WOVEN][LENGTH] = j;
+					$widgets[LENGTH] = $woven[LENGTH] = j;
 
 					// When all $widgets are fulfilled
 					$WHEN.apply($, $widgets).then(function () {
@@ -267,7 +268,7 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 					}
 
 					// Truncate $widgets and $data[WOVEN]
-					$widgets[LENGTH] = $data[WOVEN][LENGTH] = 0;
+					$widgets[LENGTH] = $woven[LENGTH] = 0;
 
 					// Remove DATA_WOVEN attribute
 					$element.removeAttr(DATA_WOVEN);
