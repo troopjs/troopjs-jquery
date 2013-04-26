@@ -216,7 +216,7 @@ define([ "jquery", "troopjs-utils/getargs", "require", "./destroy" ], function W
 				var $data = $element.data();
 				var $widget;
 				var $widgets = $data[WIDGETS] || ($data[WIDGETS] = []);
-                		var $woven = $data[WOVEN] || ($data[WOVEN] = []);
+				var $woven = $data[WOVEN] || ($data[WOVEN] = []);
 				var $unwoven = [];
 				var $unwovenLength = 0;
 				var attr_unweave = $element.attr(DATA_UNWEAVE);
