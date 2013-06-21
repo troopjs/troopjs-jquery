@@ -5,9 +5,8 @@
  * Normalized hashchange event, ripped a _lot_ of code from
  * https://github.com/millermedeiros/Hasher
  */
-/*global define:false */
 define([ "jquery" ], function HashchangeModule($) {
-	/*jshint strict:false, smarttabs:true, laxbreak:true, evil:true */
+	"use strict";
 
 	var INTERVAL = "interval";
 	var HASHCHANGE = "hashchange";
@@ -48,6 +47,7 @@ define([ "jquery" ], function HashchangeModule($) {
 		},
 
 		"update" : function (hash) {
+			/*jshint evil:true*/
 			var self = this;
 			var document = self.element.contentWindow.document;
 
@@ -65,16 +65,7 @@ define([ "jquery" ], function HashchangeModule($) {
 	};
 
 	$.event.special[HASHCHANGE] = {
-		/**
-		 * @param data (Anything) Whatever eventData (optional) was passed in
-		 *        when binding the event.
-		 * @param namespaces (Array) An array of namespaces specified when
-		 *        binding the event.
-		 * @param eventHandle (Function) The actual function that will be bound
-		 *        to the browser’s native event (this is used internally for the
-		 *        beforeunload event, you’ll never use it).
-		 */
-		"setup" : function onHashChangeSetup(data, namespaces, eventHandle) {
+		"setup" : function onHashChangeSetup() {
 			var window = this;
 
 			// Quick return if we support onHashChange natively
@@ -154,11 +145,7 @@ define([ "jquery" ], function HashchangeModule($) {
 				}, 25));
 		},
 
-		/**
-		 * @param namespaces (Array) An array of namespaces specified when
-		 *        binding the event.
-		 */
-		"teardown" : function onHashChangeTeardown(namespaces) {
+		"teardown" : function onHashChangeTeardown() {
 			var window = this;
 
 			// Quick return if we support onHashChange natively

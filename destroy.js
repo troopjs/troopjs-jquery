@@ -2,9 +2,8 @@
  * TroopJS jquery/destroy
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
-/*global define:false */
 define([ "jquery" ], function DestroyModule($) {
-	/*jshint strict:false, smarttabs:true */
+	"use strict";
 
 	var DESTROY = "destroy";
 

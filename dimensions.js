@@ -2,9 +2,8 @@
  * TroopJS jquery/dimensions
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
-/*global define:false */
 define([ "jquery" ], function DimensionsModule($) {
-	/*jshint strict:false, smarttabs:true */
+	"use strict";
 
 	var NULL = null;
 	var DIMENSIONS = "dimensions";
@@ -23,9 +22,9 @@ define([ "jquery" ], function DimensionsModule($) {
 
 	/**
 	 * Internal onResize handler
-	 * @param $event
 	 */
-	function onResize($event) {
+	function onResize() {
+		/*jshint validthis:true*/
 		var self = this;
 		var $self = $(self);
 		var width = $self.width();
@@ -62,16 +61,7 @@ define([ "jquery" ], function DimensionsModule($) {
 	}
 
 	$.event.special[DIMENSIONS] = {
-		/**
-		 * @param data (Anything) Whatever eventData (optional) was passed in
-		 *        when binding the event.
-		 * @param namespaces (Array) An array of namespaces specified when
-		 *        binding the event.
-		 * @param eventHandle (Function) The actual function that will be bound
-		 *        to the browser’s native event (this is used internally for the
-		 *        beforeunload event, you’ll never use it).
-		 */
-		setup : function onDimensionsSetup(data, namespaces, eventHandle) {
+		setup : function onDimensionsSetup() {
 			$(this)
 				.bind(RESIZE, onResize)
 				.data(DIMENSIONS, {});
@@ -108,11 +98,7 @@ define([ "jquery" ], function DimensionsModule($) {
 			delete $.data(this, DIMENSIONS)[handleObj.namespace];
 		},
 
-		/**
-		 * @param namespaces (Array) An array of namespaces specified when
-		 *        binding the event.
-		 */
-		teardown : function onDimensionsTeardown(namespaces) {
+		teardown : function onDimensionsTeardown() {
 			$(this)
 				.removeData(DIMENSIONS)
 				.unbind(RESIZE, onResize);

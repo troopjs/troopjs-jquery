@@ -2,9 +2,8 @@
  * TroopJS jquery/loom
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
-/*global define:false */
 define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/weave", "troopjs-browser/loom/unweave", "troopjs-browser/loom/woven", "troopjs-utils/getargs", "poly/array" ], function WeaveModule($, when, config, weave, unweave, woven, getargs) {
-	/*jshint strict:false, laxbreak:true, newcap:false, es5:true */
+	"use strict";
 
 	var UNDEFINED;
 	var $FN = $.fn;
@@ -50,7 +49,7 @@ define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/
 			}
 
 			// Convert widgets to RegExp
-			widgets = RegExp(getargs.call(widgets).map(function (widget) {
+			widgets = new RegExp(getargs.call(widgets).map(function (widget) {
 				return "^" + widget;
 			}).join("|"), "m");
 
@@ -71,7 +70,7 @@ define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/
 				? false
 				: match === UNDEFINED
 					? true
-					: RegExp(getargs.call(match[3]).map(function (widget) {
+					: new RegExp(getargs.call(match[3]).map(function (widget) {
 							return "^" + widget;
 						}).join("|"), "m").test(weave.replace(RE_SEPARATOR, "\n"));
 			};
@@ -89,7 +88,7 @@ define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/
 			}
 
 			// Convert widgets to RegExp
-			widgets = RegExp(getargs.call(widgets).map(function (widget) {
+			widgets = new RegExp(getargs.call(widgets).map(function (widget) {
 				return "^" + widget;
 			}).join("|"), "m");
 
@@ -109,7 +108,7 @@ define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/
 				? false
 				: match === UNDEFINED
 					? true
-					: RegExp(getargs.call(match[3]).map(function (widget) {
+					: new RegExp(getargs.call(match[3]).map(function (widget) {
 						return "^" + widget;
 					}).join("|"), "m").test(attr_woven.replace(RE_SEPARATOR, "\n"));
 		};

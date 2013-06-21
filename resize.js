@@ -4,9 +4,8 @@
  *
  * Heavy inspiration from https://github.com/cowboy/jquery-resize.git
  */
-/*global define:false */
 define([ "jquery" ], function ResizeModule($) {
-	/*jshint strict:false, smarttabs:true */
+	"use strict";
 
 	var NULL = null;
 	var RESIZE = "resize";
@@ -33,7 +32,10 @@ define([ "jquery" ], function ResizeModule($) {
 
 		// Check if width or height has changed since last check
 		if (w !== $data[W] || h !== $data[H]) {
-			$self.trigger(RESIZE, [$data[W] = w, $data[H] = h]);
+			$data[W] = w;
+			$data[H] = h;
+
+			$self.trigger(RESIZE, [ w, h ]);
 		}
 	}
 
@@ -45,16 +47,7 @@ define([ "jquery" ], function ResizeModule($) {
 	}
 
 	$.event.special[RESIZE] = {
-		/**
-		 * @param data (Anything) Whatever eventData (optional) was passed in
-		 *        when binding the event.
-		 * @param namespaces (Array) An array of namespaces specified when
-		 *        binding the event.
-		 * @param eventHandle (Function) The actual function that will be bound
-		 *        to the browser’s native event (this is used internally for the
-		 *        beforeunload event, you’ll never use it).
-		 */
-		"setup" : function onResizeSetup(data, namespaces, eventHandle) {
+		"setup" : function onResizeSetup() {
 			var self = this;
 
 			// window has a native resize event, exit fast
@@ -81,11 +74,7 @@ define([ "jquery" ], function ResizeModule($) {
 			}
 		},
 
-		/**
-		 * @param namespaces (Array) An array of namespaces specified when
-		 *        binding the event.
-		 */
-		"teardown" : function onResizeTeardown(namespaces) {
+		"teardown" : function onResizeTeardown() {
 			var self = this;
 
 			// window has a native resize event, exit fast
