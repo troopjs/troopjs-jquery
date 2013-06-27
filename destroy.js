@@ -15,14 +15,14 @@ define([ "jquery" ], function DestroyModule($) {
 		},
 
 		"remove" : function onDestroyRemove(handleObj) {
-			var self = this;
+			var me = this;
 
 			if (handleObj) {
-				handleObj.handler.call(self, $.Event({
+				handleObj.handler.call(me, $.Event({
 					"type" : handleObj.type,
 					"data" : handleObj.data,
 					"namespace" : handleObj.namespace,
-					"target" : self
+					"target" : me
 				}));
 			}
 		}

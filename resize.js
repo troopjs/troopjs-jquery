@@ -17,25 +17,25 @@ define([ "jquery" ], function ResizeModule($) {
 	/**
 	 * Iterator
 	 * @param index
-	 * @param self
+	 * @param me
 	 */
-	function iterator(index, self) {
+	function iterator(index, me) {
 		// Get data
-		var $data = $.data(self);
+		var $data = $.data(me);
 
-		// Get reference to $self
-		var $self = $(self);
+		// Get reference to $me
+		var $me = $(me);
 
 		// Get previous width and height
-		var w = $self.width();
-		var h = $self.height();
+		var w = $me.width();
+		var h = $me.height();
 
 		// Check if width or height has changed since last check
 		if (w !== $data[W] || h !== $data[H]) {
 			$data[W] = w;
 			$data[H] = h;
 
-			$self.trigger(RESIZE, [ w, h ]);
+			$me.trigger(RESIZE, [ w, h ]);
 		}
 	}
 
@@ -48,25 +48,25 @@ define([ "jquery" ], function ResizeModule($) {
 
 	$.event.special[RESIZE] = {
 		"setup" : function onResizeSetup() {
-			var self = this;
+			var me = this;
 
 			// window has a native resize event, exit fast
-			if ($.isWindow(self)) {
+			if ($.isWindow(me)) {
 				return false;
 			}
 
 			// Store data
-			var $data = $.data(self, RESIZE, {});
+			var $data = $.data(me, RESIZE, {});
 
-			// Get reference to $self
-			var $self = $(self);
+			// Get reference to $me
+			var $me = $(me);
 
 			// Initialize data
-			$data[W] = $self.width();
-			$data[H] = $self.height();
+			$data[W] = $me.width();
+			$data[H] = $me.height();
 
 			// Add to tracked collection
-			$ELEMENTS = $ELEMENTS.add(self);
+			$ELEMENTS = $ELEMENTS.add(me);
 
 			// If this is the first element, start interval
 			if($ELEMENTS.length === 1) {
@@ -75,18 +75,18 @@ define([ "jquery" ], function ResizeModule($) {
 		},
 
 		"teardown" : function onResizeTeardown() {
-			var self = this;
+			var me = this;
 
 			// window has a native resize event, exit fast
-			if ($.isWindow(self)) {
+			if ($.isWindow(me)) {
 				return false;
 			}
 
 			// Remove data
-			$.removeData(self, RESIZE);
+			$.removeData(me, RESIZE);
 
 			// Remove from tracked collection
-			$ELEMENTS = $ELEMENTS.not(self);
+			$ELEMENTS = $ELEMENTS.not(me);
 
 			// If this is the last element, stop interval
 			if($ELEMENTS.length === 0 && INTERVAL !== NULL) {

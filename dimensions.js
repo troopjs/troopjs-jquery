@@ -25,13 +25,13 @@ define([ "jquery" ], function DimensionsModule($) {
 	 */
 	function onResize() {
 		/*jshint validthis:true*/
-		var self = this;
-		var $self = $(self);
-		var width = $self.width();
-		var height = $self.height();
+		var me = this;
+		var $me = $(me);
+		var width = $me.width();
+		var height = $me.height();
 
 		// Iterate all dimensions
-		$.each($.data(self, DIMENSIONS), function dimensionIterator(namespace, dimension) {
+		$.each($.data(me, DIMENSIONS), function dimensionIterator(namespace, dimension) {
 			var w = dimension[W];
 			var h = dimension[H];
 			var _w;
@@ -55,7 +55,7 @@ define([ "jquery" ], function DimensionsModule($) {
 				dimension[_W] = _w;
 				dimension[_H] = _h;
 
-				$self.trigger(DIMENSIONS + "." + namespace, [ _w, _h ]);
+				$me.trigger(DIMENSIONS + "." + namespace, [ _w, _h ]);
 			}
 		});
 	}
@@ -72,7 +72,7 @@ define([ "jquery" ], function DimensionsModule($) {
 		 * @param handleObj (Object)
 		 */
 		add : function onDimensionsAdd(handleObj) {
-			var self = this;
+			var me = this;
 			var namespace = handleObj.namespace;
 			var dimension = {};
 			var w = dimension[W] = [];
@@ -87,7 +87,7 @@ define([ "jquery" ], function DimensionsModule($) {
 			w.sort(reverse);
 			h.sort(reverse);
 
-			$.data(self, DIMENSIONS)[namespace] = dimension;
+			$.data(me, DIMENSIONS)[namespace] = dimension;
 		},
 
 		/**

@@ -29,10 +29,10 @@ define([ "jquery" ], function HashchangeModule($) {
 	}
 
 	function Frame(document) {
-		var self = this;
+		var me = this;
 		var element;
 
-		self.element = element = document.createElement("iframe");
+		me.element = element = document.createElement("iframe");
 		element.src = "about:blank";
 		element.style.display = "none";
 	}
@@ -48,11 +48,11 @@ define([ "jquery" ], function HashchangeModule($) {
 
 		"update" : function (hash) {
 			/*jshint evil:true*/
-			var self = this;
-			var document = self.element.contentWindow.document;
+			var me = this;
+			var document = me.element.contentWindow.document;
 
 			// Quick return if hash has not changed
-			if (self.getHash() === hash) {
+			if (me.getHash() === hash) {
 				return;
 			}
 
