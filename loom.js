@@ -1,4 +1,4 @@
-/**
+/*
  * TroopJS jquery/loom
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
@@ -16,7 +16,7 @@ define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/
 	var ATTR_WOVEN = config[WOVEN];
 	var RE_SEPARATOR = /[\s,]+/;
 
-	/**
+	/*
 	 * Tests if element has a data-weave attribute
 	 * @param element to test
 	 * @returns {boolean}
@@ -26,7 +26,7 @@ define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/
 		return $(element).attr(ATTR_WEAVE) !== UNDEFINED;
 	}
 
-	/**
+	/*
 	 * Tests if element has a data-woven attribute
 	 * @param element to test
 	 * @returns {boolean}
@@ -36,9 +36,8 @@ define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/
 		return $(element).attr(ATTR_WOVEN) !== UNDEFINED;
 	}
 
-	/**
+	/*
 	 * :weave expression
-	 * @type {*}
 	 */
 	$EXPR[":"][WEAVE] = $CREATEPSEUDO
 		// If we have jQuery >= 1.8 we want to use .createPseudo
@@ -75,9 +74,8 @@ define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/
 						}).join("|"), "m").test(weave.replace(RE_SEPARATOR, "\n"));
 			};
 
-	/**
+	/*
 	 * :woven expression
-	 * @type {*}
 	 */
 	$EXPR[":"][WOVEN] = $CREATEPSEUDO
 		// If we have jQuery >= 1.8 we want to use .createPseudo
@@ -114,19 +112,28 @@ define([ "jquery", "when", "troopjs-browser/loom/config", "troopjs-browser/loom/
 		};
 
 	/**
+	 * @class $
+	 */
+
+	/**
 	 * Weaves elements
+	 * @member $
+	 * @method weave
 	 * @returns {Promise} of weaving
 	 */
 	$FN[WEAVE] = weave;
 
 	/**
 	 * Unweaves elements
+	 * @member $
+	 * @method unweave
 	 * @returns {Promise} of unweaving
 	 */
 	$FN[UNWEAVE] = unweave;
 
 	/**
 	 * Gets woven widgets
+	 * @method woven
 	 * @returns {Promise} of woven widgets
 	 */
 	$FN[WOVEN] = woven;

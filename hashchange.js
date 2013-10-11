@@ -1,4 +1,4 @@
-/**
+/*
  * TroopJS jquery/hashchange
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  *
@@ -14,8 +14,8 @@ define([ "jquery" ], function HashchangeModule($) {
 	var RE_HASH = /#(.*)$/;
 	var RE_LOCAL = /\?/;
 
-	// hack based on this: http://code.google.com/p/closure-compiler/issues/detail?id=47#c13
-	var _isIE = /**@preserve@cc_on !@*/0;
+	// hack based on this: http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
+	var _isIE = '\v' == 'v';
 
 	function getHash(window) {
 		// parsed full URL instead of getting location.hash because Firefox
@@ -64,6 +64,11 @@ define([ "jquery" ], function HashchangeModule($) {
 		}
 	};
 
+	/**
+	 * jQuery event fired ever when the URL hash has changed.
+	 * @member $
+	 * @event hashchange
+	 */
 	$.event.special[HASHCHANGE] = {
 		"setup" : function onHashChangeSetup() {
 			var window = this;

@@ -1,4 +1,4 @@
-/**
+/*
  * TroopJS jquery/resize
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  *
@@ -14,7 +14,7 @@ define([ "jquery" ], function ResizeModule($) {
 	var $ELEMENTS = $([]);
 	var INTERVAL = NULL;
 
-	/**
+	/*
 	 * Iterator
 	 * @param index
 	 * @param me
@@ -39,13 +39,18 @@ define([ "jquery" ], function ResizeModule($) {
 		}
 	}
 
-	/**
+	/*
 	 * Internal interval
 	 */
 	function interval() {
 		$ELEMENTS.each(iterator);
 	}
 
+	/**
+	 * jQuery event fired whenever element dimension changes using an interval.
+	 * @member $
+	 * @event resize
+	 */
 	$.event.special[RESIZE] = {
 		"setup" : function onResizeSetup() {
 			var me = this;
