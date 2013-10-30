@@ -2,7 +2,7 @@
  * TroopJS jquery/dimensions
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
-define([ "jquery" ], function DimensionsModule($) {
+define([ "jquery", "./resize" ], function DimensionsModule($) {
 	"use strict";
 
 	var NULL = null;
