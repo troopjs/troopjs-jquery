@@ -1,0 +1,8 @@
+{
+	"name": "troopjs-jquery",
+	"version": "2.1.0",
+	"ignore": [
+		"**/.*",
+		"node_modules"
+	]
+}
