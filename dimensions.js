@@ -1,4 +1,4 @@
-/**
+/*
  * TroopJS jquery/dimensions
  * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
  */
@@ -13,14 +13,14 @@ define([ "jquery", "./resize" ], function DimensionsModule($) {
 	var _W = "_" + W;
 	var _H = "_" + H;
 
-	/**
+	/*
 	 * Internal comparator used for reverse sorting arrays
 	 */
 	function reverse(a, b) {
 		return b - a;
 	}
 
-	/**
+	/*
 	 * Internal onResize handler
 	 */
 	function onResize() {
@@ -60,6 +60,11 @@ define([ "jquery", "./resize" ], function DimensionsModule($) {
 		});
 	}
 
+	/**
+	 * jQuery event fired ever since the element size meets the specified dimension.
+	 * @member $
+	 * @event dimensions
+	 */
 	$.event.special[DIMENSIONS] = {
 		setup : function onDimensionsSetup() {
 			$(this)
@@ -67,7 +72,7 @@ define([ "jquery", "./resize" ], function DimensionsModule($) {
 				.data(DIMENSIONS, {});
 		},
 
-		/**
+		/*
 		 * Do something each time an event handler is bound to a particular element
 		 * @param handleObj (Object)
 		 */
@@ -90,7 +95,7 @@ define([ "jquery", "./resize" ], function DimensionsModule($) {
 			$.data(me, DIMENSIONS)[namespace] = dimension;
 		},
 
-		/**
+		/*
 		 * Do something each time an event handler is unbound from a particular element
 		 * @param handleObj (Object)
 		 */
