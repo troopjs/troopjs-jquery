@@ -7,9 +7,10 @@ define([ "jquery" ], function DestroyModule($) {
 	var DESTROY = "destroy";
 
 	/**
-	 * @class jquery.destroy
-	 * @singleton
 	 * Module that adds a {@link $.event#destroy destroy event}
+	 * @class jquery.destroy
+	 * @extends jquery.plugin
+	 * @singleton
 	 */
 
 	/**

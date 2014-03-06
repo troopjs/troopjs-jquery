@@ -5,9 +5,10 @@ define([ "jquery" ], function ($) {
 	"use strict";
 
 	/**
-	 * @class jquery.noconflict
-	 * @singleton
 	 * Module that simply return a `noConflict` version of jQuery
+	 * @class jquery.noconflict
+	 * @extends jquery.plugin
+	 * @singleton
 	 */
 	return $.noConflict(true);
 });
