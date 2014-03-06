@@ -1,6 +1,5 @@
-/*
- * TroopJS jquery/destroy
- * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
+/**
+ * @license MIT http://troopjs.mit-license.org/
  */
 define([ "jquery" ], function DestroyModule($) {
 	"use strict";
@@ -8,8 +7,14 @@ define([ "jquery" ], function DestroyModule($) {
 	var DESTROY = "destroy";
 
 	/**
+	 * @class jquery.destroy
+	 * @singleton
+	 * Module that adds a {@link $.event#destroy destroy event}
+	 */
+
+	/**
 	 * A special jQuery event whose handler will be called, only when this handler it's removed from the element.
-	 * @member $
+	 * @member $.event
 	 * @event destroy
 	 */
 	$.event.special[DESTROY] = {
