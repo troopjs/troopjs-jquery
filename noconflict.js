@@ -6,9 +6,9 @@ define([ "jquery" ], function ($) {
 
 	/**
 	 * Module that simply return a `noConflict` version of jQuery
-	 * @class jquery.noconflict
-	 * @extends jquery.plugin
-	 * @singleton
+	 * @method noConflict
+	 * @member $
+	 * @static
 	 */
 	return $.noConflict(true);
 });

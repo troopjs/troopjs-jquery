@@ -7,15 +7,8 @@ define([ "jquery" ], function DestroyModule($) {
 	var DESTROY = "destroy";
 
 	/**
-	 * Module that adds a {@link $.event#destroy destroy event}
-	 * @class jquery.destroy
-	 * @extends jquery.plugin
-	 * @singleton
-	 */
-
-	/**
 	 * A special jQuery event whose handler will be called, only when this handler it's removed from the element.
-	 * @member $.event
+	 * @member $
 	 * @event destroy
 	 */
 	$.event.special[DESTROY] = {
