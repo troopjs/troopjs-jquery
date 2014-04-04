@@ -4,6 +4,16 @@
 define([ "jquery" ], function DestroyModule($) {
 	"use strict";
 
+	/**
+	 * Extends {@link jQuery} with:
+	 *
+	 *  - {@link $#event-destroy} event
+	 *
+	 * @class jquery.destroy
+	 * @extends External
+	 * @alias plugin.jquery
+	 */
+
 	var DESTROY = "destroy";
 
 	/**

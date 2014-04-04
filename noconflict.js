@@ -6,9 +6,10 @@ define([ "jquery" ], function ($) {
 
 	/**
 	 * Module that simply return a `noConflict` version of jQuery
-	 * @method noConflict
-	 * @member $
+	 * @class jquery.noconflict
+	 * @extends External
 	 * @static
 	 */
+
 	return $.noConflict(true);
 });
