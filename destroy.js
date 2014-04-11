@@ -16,8 +16,11 @@ define([ "jquery" ], function DestroyModule($) {
 	var DESTROY = "destroy";
 
 	/**
+	 * @class $
+	 */
+
+	/**
 	 * A special jQuery event whose handler will be called, only when this handler it's removed from the element.
-	 * @member $
 	 * @event destroy
 	 */
 	$.event.special[DESTROY] = {
