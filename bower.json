@@ -1,8 +1,11 @@
 {
-	"name": "troopjs-jquery",
-	"version": "2.1.0",
-	"ignore": [
-		"**/.*",
-		"node_modules"
-	]
+  "name": "troopjs-jquery",
+  "version": "3.0.2",
+  "ignore": [
+    "**/.*",
+    "node_modules"
+  ],
+  "dependencies": {
+    "jquery": ">=1.7.0 <2.1.0"
+  }
 }

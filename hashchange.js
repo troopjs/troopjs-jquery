@@ -1,12 +1,23 @@
 /**
- * TroopJS jquery/hashchange
- * @license MIT http://troopjs.mit-license.org/ © Mikael Karon mailto:mikael@karon.se
- *
- * Normalized hashchange event, ripped a _lot_ of code from
- * https://github.com/millermedeiros/Hasher
+ * @license MIT http://troopjs.mit-license.org/
  */
 define([ "jquery" ], function HashchangeModule($) {
 	"use strict";
+
+	/**
+	 * Normalized hashchange event. Extends {@link jQuery} with:
+	 *
+	 * - {@link $#event-hashchange} event
+	 *
+	 *
+	 * <div class="notice">
+	 * Heavily influenced by <a href="https://github.com/millermedeiros/Hasher">Hasher</a>
+	 * which is available under <a href="ttp://www.opensource.org/licenses/mit-license.php">MIT license</a>.
+	 * </div>
+	 *
+	 * @class jquery.hashchange
+	 * @alias plugin.jquery
+	 */
 
 	var INTERVAL = "interval";
 	var HASHCHANGE = "hashchange";
@@ -14,8 +25,8 @@ define([ "jquery" ], function HashchangeModule($) {
 	var RE_HASH = /#(.*)$/;
 	var RE_LOCAL = /\?/;
 
-	// hack based on this: http://code.google.com/p/closure-compiler/issues/detail?id=47#c13
-	var _isIE = /**@preserve@cc_on !@*/0;
+	// hack based on this: http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
+	var _isIE = '\v' == 'v';
 
 	function getHash(window) {
 		// parsed full URL instead of getting location.hash because Firefox
@@ -64,6 +75,14 @@ define([ "jquery" ], function HashchangeModule($) {
 		}
 	};
 
+	/**
+	 * @class $
+	 */
+
+	/**
+	 * A special jQuery event fired ever when the URL hash has changed.
+	 * @event hashchange
+	 */
 	$.event.special[HASHCHANGE] = {
 		"setup" : function onHashChangeSetup() {
 			var window = this;
