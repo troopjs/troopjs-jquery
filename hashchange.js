@@ -16,6 +16,7 @@ define([ "jquery" ], function HashchangeModule($) {
 	 * </div>
 	 *
 	 * @class jquery.hashchange
+	 * @static
 	 * @alias plugin.jquery
 	 */
 
