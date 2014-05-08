@@ -10,6 +10,7 @@ define([ "jquery" ], function DestroyModule($) {
 	 *  - {@link $#event-destroy} event
 	 *
 	 * @class jquery.destroy
+	 * @static
 	 * @alias plugin.jquery
 	 */
 
